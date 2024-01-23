@@ -40,29 +40,30 @@ if __name__ == "__main__":
 
     TransactionData_objects = read_csv_and_create_objects(file_path)
 
-    start_index = 1
+    start_index = 0
     
     end_index = 6
 
     for i in range(start_index, end_index):
 
-        print(TransactionData_objects[i].fileUploadId)
         try:
             producer = KafkaProducer(bootstrap_servers='MR402S0352D.palawangroup.com:9092')
 
             topic = 'ftpKafkaConsumer'
         
-            for i in range(1):
+            
+                
+            print(TransactionData_objects[i].fileUploadId)
 
-                message = f"Message {i}"
+            message = f"Message {i}"
 
-                my_dict = TransactionData_objects[i].to_dict()
+            my_dict = TransactionData_objects[i].to_dict()
 
-                my_dict = json.dumps(my_dict)
+            my_dict = json.dumps(my_dict)
 
-                producer.send(topic, value=my_dict.encode('utf-8'))
+            producer.send(topic, value=my_dict.encode('utf-8'))
 
-                print("Message sent successfully")
+            print("Message sent successfully")
         
         except Exception as e:
 
