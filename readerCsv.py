@@ -15,7 +15,16 @@ class Transaction:
 
     def __str__(data):
         return f"{{fileUploadId: {data.fileUploadId}, filePath: {data.filePath}, fileName: {data.fileName},subListID: {data.subListID}, userID: {data.userID}, businessHierarchyId: {data.businessHierarchyId}}}"
-
+    
+    def to_dict(self):
+        return {
+            'fileUploadId': self.fileUploadId,
+            'filePath': self.filePath,
+            'fileName': self.fileName,
+            'subListID': self.subListID,
+            'userID': self.userID,
+            'businessHierarchyId': self.businessHierarchyId
+        }
 def read_csv_and_create_objects(file_path):
     TransactionData = []
     with open(file_path, 'r') as file:
@@ -31,34 +40,34 @@ if __name__ == "__main__":
 
     TransactionData_objects = read_csv_and_create_objects(file_path)
 
-    start_index = 0
+    start_index = 1
     
-    end_index = 1
+    end_index = 6
 
     for i in range(start_index, end_index):
 
         print(TransactionData_objects[i].fileUploadId)
-        # try:
-        #     producer = KafkaProducer(bootstrap_servers='MR402S0352D.palawangroup.com:9092')
+        try:
+            producer = KafkaProducer(bootstrap_servers='MR402S0352D.palawangroup.com:9092')
 
-        #     topic = 'testKafkaTopic'
+            topic = 'ftpKafkaConsumer'
         
-        #     for i in range(1):
+            for i in range(1):
 
-        #         message = f"Message {i}"
+                message = f"Message {i}"
 
-        #         my_dict = TransactionData_objects[i]
+                my_dict = TransactionData_objects[i].to_dict()
 
-        #         my_dict = json.dumps(my_dict)
+                my_dict = json.dumps(my_dict)
 
-        #         producer.send(topic, value=my_dict.encode('utf-8'))
+                producer.send(topic, value=my_dict.encode('utf-8'))
 
-        #         print("Message sent successfully")
+                print("Message sent successfully")
         
-        # except Exception as e:
+        except Exception as e:
 
-        #     print(f"Error: {e}")
+            print(f"Error: {e}")
 
-        # finally:
+        finally:
 
-        #     producer.close()
+            producer.close()
