@@ -7,11 +7,27 @@ Created on Tue Jan 30 15:36:54 2024
 
 import pandas as pd
 
+import hashlib
+
 config = pd.read_excel('config.xlsx',engine = 'openpyxl')
 
 config = dict(list(zip(config['key'],config['value'])))
 
 df = pd.read_csv('invalids_new.csv')
+
+def hash(row,column,hash_value):
+ 
+    columnName = 'hash_'
+ 
+    concatstr = ''
+ 
+    for j in column:
+ 
+        concatstr = concatstr + row[j]
+ 
+    row[hash_value] = hashlib.sha512( concatstr.encode("utf-8") ).hexdigest()
+    
+    return row
 
 df1 = df[((df['reason'].isna()) | (df['reason']==''))]
 
