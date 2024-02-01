@@ -14,7 +14,7 @@ config = pd.read_excel('config.xlsx',engine = 'openpyxl')
 
 config = dict(list(zip(config['key'],config['value'])))
 
-print('frank')
+
 
 
 from fuzzywuzzy import process
@@ -41,6 +41,8 @@ def mis_spelled_identify(row):
     else:
         
         row['mis_spell'] = '0'
+
+    return row
 
 
 def mis_spelled_apply_function(row):
@@ -87,9 +89,18 @@ def identify_misspelled_names(names):
 
 
 
-df = pd.read_csv('/overall/output/three_hash.csv')
+df = pd.read_csv('output/three_hash.csv')
 
-df=df[0:100000]
+
+
+df = df[700001:989429]
+
+
+#df['FIRSTNAME'] = df['FIRSTNAME'].fillna('')
+
+df.fillna('',inplace = True)
+
+df['mis_spell'] = ''
 
 final_df = df.copy()
 
@@ -111,6 +122,8 @@ final_df['mis_spell'] = ''
 
 final_df = final_df.apply(lambda row:mis_spelled_identify(row),axis = 1)
 
+print(final_df.columns)
+
 print(len(final_df))
 
 mis_spelled_duplicates_final = final_df[final_df['mis_spell']=='0']
@@ -129,9 +142,9 @@ mis_spelled_duplicates_final['valid'] = 'invalid'
 
 mis_spelled_duplicates_final['reason'] = 'duplicates by mis-spelling logic'
 
-mis_spelled_duplicates_final.to_csv('mis_spelled.csv',index = False)
+mis_spelled_duplicates_final.to_csv('mis_spelled.csv', mode='a', header=False,index = False)
 
-final_df.to_csv('mis_spelled_unique.csv',index = False)
+#final_df.to_csv('mis_spelled_unique.csv', mode='a', header=False, index = False)
 
 
 print('mis_spelling logic completed')

@@ -2,7 +2,12 @@ import pandas as pd
 
 import re
 
+from unidecode import unidecode
+
 config = pd.read_excel('config.xlsx',engine = 'openpyxl')
+
+
+print('config read')
 
 config = dict(list(zip(config['key'],config['value'])))
 
@@ -386,6 +391,8 @@ def single_character_check_lastname(row):
 
 df = pd.read_csv('inputs.csv')
 
+#df = df[0:10000]
+
 headers = pd.read_csv('headers_matching.csv')
 
 headers = dict(list(zip(headers['key'],headers['value'])))
@@ -451,9 +458,13 @@ for suffix in suffixes:
 
 
 
+df['reason'] = ''
+
+df['reason'].fillna('',inplace = True)
 
 
 
+#df = df[0:10000]
 
 df = df.apply(lambda row:single_character_check_firstname(row),axis = 1)
 
@@ -463,18 +474,26 @@ print('first name completed')
 
 
 
+df['reason'].fillna('',inplace = True)
+
 df = df.apply(lambda row:single_character_check_lastname(row),axis = 1)
 
 print()
 
 print('numeric character check')
 
+df['reason'].fillna('',inplace = True)
+
 df = df.apply(lambda row:number_check_firstname(row),axis = 1)
+
+df['reason'].fillna('',inplace = True)
 
 df = df.apply(lambda row:number_check_lastname(row),axis = 1)
 
-print(df['valid'])
+#print(df['valid'])
 
+
+df['reason'].fillna('',inplace = True)
 
 print('contact details check')
 
@@ -482,20 +501,31 @@ df['length'] = df['CONTACT_DETAILS'].str.len()
 
 df['CONTACT_DETAILS'].fillna('',inplace = True)
 
-print(df[df['CONTACT_DETAILS']=='0']['valid'].unique())             
+#print(df[df['CONTACT_DETAILS']=='0']['valid'].unique())             
 
 print()    
 
-print(df['valid'])
+#print(df['valid'])
 
 
 print('special character check')
-print(df['valid'])
+#print(df['valid'])
 
 
+
+
+df['reason'].fillna('',inplace = True)
 
 df = df.apply(lambda row:special_character_check_firstname(row),axis = 1)
 
+
+df['reason'].fillna('',inplace = True)
+
 df = df.apply(lambda row:special_character_check_lastname(row),axis = 1)
 
-print(df['valid'])
+#print(df['valid'])
+
+
+
+
+df.to_csv('invalids_new.csv')

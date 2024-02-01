@@ -11,7 +11,7 @@ config = pd.read_excel('config.xlsx',engine = 'openpyxl')
 
 config = dict(list(zip(config['key'],config['value'])))
 
-df = pd.read_csv('invalids_new.csv')
+df = pd.read_csv('four_hash.csv')
 
 df1 = df[((df['reason'].isna()) | (df['reason']==''))]
 
@@ -44,22 +44,22 @@ for xy in config['HASH_2_columns'].split(','):
 
 
 
-duplicates = df[df.duplicated(['FIRSTNAME','LASTNAME','DATEOFBIRTH','CUSTOMERADDRESS'])]
+#duplicates = df[df.duplicated(['FIRSTNAME','LASTNAME','DATEOFBIRTH','CUSTOMERADDRESS'])]
 
-unique = df[~(df.duplicated(['FIRSTNAME','LASTNAME','DATEOFBIRTH','CUSTOMERADDRESS']))]
+#unique = df[~(df.duplicated(['FIRSTNAME','LASTNAME','DATEOFBIRTH','CUSTOMERADDRESS']))]
 
-unique.to_csv('four_hash.csv',index = False)
+#unique.to_csv('four_hash.csv',index = False)
 
-duplicates.to_csv('four_hash_duplicates.csv',index = False)
+#duplicates.to_csv('four_hash_duplicates.csv',index = False)
 
 
 duplicates = df[df.duplicated(['FIRSTNAME','LASTNAME','DATEOFBIRTH'])]
 
-unique = df[~(df.duplicated(['FIRSTNAME','LASTNAME','DATEOFBIRTH']))]
+#unique = df[~(df.duplicated(['FIRSTNAME','LASTNAME','DATEOFBIRTH']))]
 
-unique.to_csv('three_hash.csv',index = False)
+#unique.to_csv('three_hash.csv',index = False)
 
-duplicates.to_csv('three_hash_duplicates.csv',index = False)
+duplicates.to_csv('three_hash_FR_four_dup.csv',index = False)
 
 
 
