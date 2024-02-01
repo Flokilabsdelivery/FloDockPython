@@ -100,7 +100,7 @@ def special_character_check_firstname(row):
 
     while(True):
 
-        special_char = re.compile(r'[^a-zA-Z0-9]')
+        special_char = re.compile(r'[^a-zA-Z0-9.]')
     
         if special_char.search(row[config['FirstName']].replace(' ','').replace('-','')) != None:
             
@@ -159,9 +159,14 @@ def special_character_check_lastname(row):
     while(True):
 
 
-        special_char = re.compile(r'[^a-zA-Z0-9]')
+        special_char = re.compile(r'[^a-zA-Z0-9.]')
+
+#        print(row['LASTNAME'])
+
+
+#        print(special_char.search(row[config['FirstName']].replace(' ','').replace('-','')) != None)
         
-        if special_char.search(row[config['FirstName']].replace(' ','').replace('-','')) != None:
+        if special_char.search(row[config['LastName']].replace(' ','').replace('-','')) != None:
             
             if len(row[config['FirstName']].split(' '))>1:
                 
@@ -210,6 +215,42 @@ def special_character_check_lastname(row):
 
     return row
 
+def check_phonenumber_format(row):
+
+	contact_details = str(row['CONTACT_DETAILS'])
+	
+	if contact_details != 'nan':
+        	
+		contact_details = contact_details.replace(" ", "").upper()
+		
+		if contact_details.startswith('9'):
+            		
+			contact_details = '+63' + contact_details
+
+		elif contact_details.startswith('0'):
+
+           		contact_details = '+63' + contact_details[1:]
+
+		pattern = re.compile(r'^\+?63(\d{10})$')
+        		
+		if re.match(pattern, contact_details):
+            
+			row['CONTACT_DETAILS'] = contact_details
+
+			row['PHONE_ERROR_FORMAT'] = 0
+		else:
+
+		        row['CONTACT_DETAILS'] = contact_details
+        		
+		        row['PHONE_ERROR_FORMAT'] = 1
+
+		if row['CONTACT_DETAILS'] == '+63':
+            
+		        row['CONTACT_DETAILS'] = ''
+
+	row['CONTACT_DETAILS'] = str(row['CONTACT_DETAILS'])
+    					
+	return row
 
 def GYU(row):
     
@@ -524,7 +565,7 @@ count = 0
 total_dataframe = pd.DataFrame()
 
 
-#files_location = files_location[0:1]
+#files_location = ['/STFS0029M/CDMS/AUG/2023-08-01']
 
 for i in files_location:
     
@@ -537,13 +578,46 @@ for i in files_location:
             
             
                 
-            file1 = pd.read_csv(i+"//"+config['CDMS_file1'],encoding='ISO-8859-1', sep="|")
+            file1 = pd.read_csv(i+"//"+config['CDMS_file1'])
+
+#            print(file1.columns)
+
+            print(file1[file1['CustomerNumber']==26536694]['CustomerLastName'])
             
-            file2 = pd.read_csv(i+'//'+config['CDMS_file2'],encoding='ISO-8859-1', sep="|")
+            file2 = pd.read_csv(i+'//'+config['CDMS_file2'])
             
-            file3 = pd.read_csv(i+"//"+config['CDMS_file3'],encoding='ISO-8859-1', sep="|")
+            file3 = pd.read_csv(i+"//"+config['CDMS_file3'])
             
-            file4 = pd.read_csv(i+'//'+config['CDMS_file4'],encoding='ISO-8859-1', sep="|")
+            file4 = pd.read_csv(i+'//'+config['CDMS_file4'])
+
+            file3['sort'] = 15
+
+            file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 1)),'sort'] = 1
+
+            file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 1)),'sort'] = 2 
+
+            file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 2)),'sort'] = 3
+
+            file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 2)),'sort'] = 4
+
+            file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 3)),'sort'] = 5
+
+            file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 4)),'sort'] = 6
+
+            file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 3)),'sort'] = 7
+ 
+            file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 4)),'sort'] = 8
+
+            file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 5)),'sort'] = 9
+
+            file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 5)),'sort'] = 10
+
+            file3.sort_values(['CustomerNumber','sort'],inplace = True,ascending = True)
+
+            file3.drop_duplicates(['CustomerNumber'],inplace = True)
+
+
+
         
             headers = pd.read_csv('headers_matching.csv')
             
@@ -558,9 +632,20 @@ for i in files_location:
             file4.rename(columns = headers,inplace = True)
                 
             
+
+            file3.loc[file3['sort']==15,config['ADDRESS1']] = ''
+
+            file3.loc[file3['sort']==15,config['ADDRESS2']] = ''
+
+            file3.loc[file3['sort']==15,config['ADDRESS3']] = ''
+
+
+
             
             #Merging all the files
-            
+            file3.loc[file3['sort']==15,config['ADDRESS4']] = '' 
+
+
             CDMS_merged = pd.merge(file1,file2,how = 'left',on = [config['customer_id']])
             
             CDMS_merged = pd.merge(CDMS_merged,file3,how = 'left',on = [config['customer_id']])
@@ -606,7 +691,7 @@ for i in files_location:
             
             CDMS_output = CDMS_merged.copy()
             
-            print(i.replace(config['replace_string'],config['replace_with'])+"//CDMS_output.csv")
+#            print(i.replace(config['replace_string'],config['replace_with'])+"//CDMS_output.csv")
             
             if os.path.exists(i.replace(config['replace_string'],config['replace_with'])):
                 
@@ -629,7 +714,7 @@ for i in files_location:
             
             df = CDMS_output.copy()
             
-            
+            print(df[df['CUSTOMER_ID']==26536694]['LASTNAME'])
             
             errored_headers = ['EMAIL','LANDLINE_NO','EXPIRYDATE','LOAD_DT','ISSUEDATE','DATEOFBIRTH']
             
@@ -661,10 +746,11 @@ for i in files_location:
             
             df[config['FirstName']] = df[config['FirstName']].str.upper()   
             
-            df['CustomerLasttName'] = df[config['LastName']].str.upper()   
+            df[config['LastName']] = df[config['LastName']].str.upper()   
             
             df[config['CustomerAddress']] = df[config['CustomerAddress']].str.upper()  
-    
+
+            print(df[df['CUSTOMER_ID']==26536694]['LASTNAME'])
     
             #dela cruz
             
@@ -684,7 +770,7 @@ for i in files_location:
             
                     
     
-    
+            print(df[df['CUSTOMER_ID']==26536694]['LASTNAME'])
             #change_accent
             
             for column in df.columns:
@@ -695,12 +781,12 @@ for i in files_location:
                 
                 df[column] = df[column].str.replace(',',';')
                 
-
+            print(df[df['CUSTOMER_ID']=='26536694']['LASTNAME'])
             
             
             df = df.apply(lambda row:change_accent(row),axis = 1)
             
-
+            print(df[df['CUSTOMER_ID']=='26536694']['LASTNAME'])
             #email validation
             
             for column in ['EMAIL','LANDLINE_NO']:
@@ -895,7 +981,7 @@ for i in files_location:
             
             df = df.apply(lambda row:number_check_lastname(row),axis = 1)
             
-            print(df['valid'])
+#            print(df['valid'])
             
     
             print('contact details check')
@@ -920,19 +1006,24 @@ for i in files_location:
     
             print()    
             
-            print(df['valid'])
+#            print(df['valid'])
             
             
             print('special character check')
-            print(df['valid'])
+#            print(df['valid'])
+#            df['CUSTOMER_ID'] = df['CUSTOMER_ID'].astype(str)
+
+#            df = df[df['CUSTOMER_ID']=='7734889']
+
+            df['PHONE_ERROR_FORMAT'] = ''
             
-            
+            df = df.apply(lambda row:check_phonenumber_format(row),axis = 1)
             
             df = df.apply(lambda row:special_character_check_firstname(row),axis = 1)
             
             df = df.apply(lambda row:special_character_check_lastname(row),axis = 1)
             
-            print(df['valid'])
+#            print(df['valid'])
 
                 
                 # if ((valid_count == df['valid'].value_counts()['valid']) and (invalid_count == df['valid'].value_counts()['invalid'])):
@@ -999,7 +1090,7 @@ for i in files_location:
             
             df = df.apply(lambda row:hash(row,config['HASH_2_columns'].split(','),'HASH_2'),axis = 1)
 
-            print(df[df['CONTACT_DETAILS']=='0']['valid'].unique())             
+            #print(df[df['CONTACT_DETAILS']=='0']['valid'].unique())             
 
             
 
@@ -1030,7 +1121,7 @@ for i in files_location:
             
             final_df_duplicates['valid'] = 'invalid'
 
-            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
+#            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
 
                 
             # final_df_duplicates['reason'] +=',' 
@@ -1039,7 +1130,7 @@ for i in files_location:
             
             final_df_duplicates.loc[final_df_duplicates['reason']!='','reason'] += 'duplicates in raw data'
             
-            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
+#            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
             
             #mis spelling logic
             print('mis spelling logic')
@@ -1245,7 +1336,7 @@ for i in files_location:
             
             final_df = final_df[final_df['valid']=='valid']  
             
-            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
+#            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
             
             if os.path.exists(i.replace(config['replace_string'],config['replace_with'])+"//valid"):
                 
@@ -1285,7 +1376,7 @@ for i in files_location:
             
             final_df['PRIMARYID'] = ''
             
-            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
+#            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
             
             
             headers_final = list(headers.values())
@@ -1298,7 +1389,7 @@ for i in files_location:
             final_df.fillna('',inplace = True)
             
             
-            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
+#            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
             
             
             final_df.fillna('',inplace = True)
@@ -1332,6 +1423,8 @@ for i in files_location:
             final_df['BIZ_ID'] = ''
 
             final_df['GEN_ID'] = ''
+
+            final_df['FILE_LOC'] = i.replace(config['replace_string'],config['replace_with'])+"//valid//CDMS_output.csv"
 
             
             final_df.to_csv(i.replace(config['replace_string'],config['replace_with'])+"//valid//CDMS_output.csv",index  = False)
@@ -1403,7 +1496,7 @@ for i in files_location:
             
             
             
-            # response = requests.post(url = 'http://mr403s0332d.palawangroup.com:4200/fileUploadExternalApi',headers = {'X-AUTH-TOKEN':'eyJ1c2VybmFtZSI6InN5c3RlbSIsInRva2VuIjoiODRjOWZmNmQtZTllMy00MWUwLWI0MDctZmY5ZGQ5YjFmYWU4In0=','Content-Type':'application/json'},json = body)
+#            response = requests.post(url = 'http://mr403s0332d.palawangroup.com:4200/fileUploadExternalApi',headers = {'X-AUTH-TOKEN':'eyJ1c2VybmFtZSI6InN5c3RlbSIsInRva2VuIjoiODRjOWZmNmQtZTllMy00MWUwLWI0MDctZmY5ZGQ5YjFmYWU4In0=','Content-Type':'application/json'},json = body)
             
             # print(hello)
             

@@ -15,7 +15,46 @@ config = pd.read_excel('config.xlsx',engine = 'openpyxl')
 config = dict(list(zip(config['key'],config['value'])))
 
 
+
+
+from fuzzywuzzy import process
+
+
 import difflib
+
+
+
+def deduplicate_strings(strings, threshold=80):
+
+    deduped_strings = process.dedupe(strings, threshold=70)
+
+    return deduped_strings
+
+
+
+def mis_spelled_identify(row):
+    
+    if row['FIRSTNAME'] in row['unique']:
+        
+        row['mis_spell'] = '1'
+        
+    else:
+        
+        row['mis_spell'] = '0'
+
+    return row
+
+
+def mis_spelled_apply_function(row):
+
+    
+    unique = deduplicate_strings(row['spell_check'],80)
+
+    row['unique'] = unique
+
+
+    return row
+
 
 
 def identify_misspelled_names(names):
@@ -48,58 +87,60 @@ def identify_misspelled_names(names):
 
 
 
-df = pd.read_csv('three_hash_duplicates.csv')
+
+
+df = pd.read_csv('output/three_hash.csv')
+
+
+
+#df = df[0:1000]
+
+
+#df['FIRSTNAME'] = df['FIRSTNAME'].fillna('')
+
+df.fillna('',inplace = True)
+
+df['mis_spell'] = ''
 
 final_df = df.copy()
 
-mis_spelled = final_df[((final_df.duplicated(keep='first',subset = [config['LastName'],config['CustomerAddress'],config['CustomerDOB']])) | (final_df.duplicated(keep='last',subset = [config['LastName'],config['CustomerAddress'],config['CustomerDOB']])))]
+group = final_df.groupby(['LASTNAME','CUSTOMERADDRESS','DATEOFBIRTH'])['FIRSTNAME'].agg(list)
 
-mis_spelled_unique = mis_spelled[~(mis_spelled.duplicated([config['LastName'],config['CustomerAddress'],config['CustomerDOB']]))]
+group = group.reset_index()
 
-final_df = final_df[~((final_df.duplicated(keep='first',subset = [config['LastName'],config['CustomerAddress'],config['CustomerDOB']])) | (final_df.duplicated(keep='last',subset = [config['LastName'],config['CustomerAddress'],config['CustomerDOB']])))]
+group['unique'] = ''
 
-mis_spelled_duplicates_final = pd.DataFrame()
+group.rename(columns = {'FIRSTNAME':'spell_check'},inplace = True)
 
-mis_spelled_unique.reset_index(inplace = True,drop = True)
+group = group.apply(lambda row:mis_spelled_apply_function(row),axis = 1)
 
-for xy in range(0,len(mis_spelled_unique)):
-    
-    lastname = mis_spelled_unique.loc[xy,config['LastName']]
+final_df = pd.merge(final_df,group,on = ['LASTNAME','CUSTOMERADDRESS','DATEOFBIRTH'],how = 'left')
 
-    address = mis_spelled_unique.loc[xy,config['CustomerAddress']]
+final_df['mis_spell'] = ''
 
-    dob = mis_spelled_unique.loc[xy,config['CustomerDOB']]
+#                final_df = final_df.apply(lambda row:mis_spelled_apply_function(row),axis = 1)
 
-    temp_df = mis_spelled[((mis_spelled[config['LastName']]==lastname) & (mis_spelled[config['CustomerAddress']]==address) & (mis_spelled[config['CustomerDOB']]==dob))]
+final_df = final_df.apply(lambda row:mis_spelled_identify(row),axis = 1)
 
-    identical = identify_misspelled_names(list(temp_df[config['FirstName']]))
-    
-    if len(identical)>0:
-        
-        set1 = set(list(temp_df[config['FirstName']]))
-    
-        final_set = list(set1 - set(identical))
-        
-        final_set.append(identical[0])
+print(final_df.columns)
 
-        final_df = pd.concat([final_df,mis_spelled[mis_spelled[config['FirstName']].isin(final_set)]],axis= 0)
+print(len(final_df))
 
-        final_set = identical[1:]
+mis_spelled_duplicates_final = final_df[final_df['mis_spell']=='0']
 
-        mis_spelled_duplicates = mis_spelled[mis_spelled[config['FirstName']].isin(final_set)]
-        
-        mis_spelled_duplicates_final = pd.concat([mis_spelled_duplicates_final,mis_spelled_duplicates],axis = 0)
-        
-    else:
-        
-        final_df = pd.concat([final_df,temp_df],axis = 0)
+final_df = final_df[final_df['mis_spell']=='1']
 
-    
+print('mis spelled',len(mis_spelled_duplicates_final))
+
+print('correct',len(final_df))
+
+#                print(final_df['valid'].value_counts())
+
+
+
 mis_spelled_duplicates_final['valid'] = 'invalid'
 
 mis_spelled_duplicates_final['reason'] = 'duplicates by mis-spelling logic'
-
-
 
 mis_spelled_duplicates_final.to_csv('mis_spelled.csv',index = False)
 
