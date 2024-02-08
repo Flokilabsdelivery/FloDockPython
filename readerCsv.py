@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
     start_index = 0
     
-    end_index = 68
+    end_index =1
 
     for i in range(start_index, end_index):
 
