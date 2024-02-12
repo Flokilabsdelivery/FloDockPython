@@ -22,7 +22,7 @@ import json
 
 import difflib
 
-from kafka import KafkaProducer
+# from kafka import KafkaProducer
 
 import sys
 
@@ -31,6 +31,8 @@ sys.path.append(r'C:\Users\CBT\AppData\Local\Programs\Python\Python311\Lib\site-
 config = pd.read_excel('config.xlsx',engine = 'openpyxl')
 
 config = dict(list(zip(config['key'],config['value'])))
+
+import configparser
 
 import requests
 
@@ -533,9 +535,20 @@ def list_all_files_in_drive(drive):
 
     return all_files
 
+config_parser = configparser.ConfigParser()
 
+config_parser.read_string('[default]\n' + open('config.properties').read())
 
-drive_to_list = config['source_path']
+CDMS_properties = {}
+
+for option in config_parser.options('default'):
+    CDMS_properties[option] = config_parser.get('default', option)
+
+print('properties files')
+
+print(CDMS_properties['cdms_file1'])
+
+drive_to_list = CDMS_properties['source_path']
 
 files_in_drive = list_all_files_in_drive(drive_to_list)
 
@@ -565,30 +578,33 @@ count = 0
 total_dataframe = pd.DataFrame()
 
 
-#files_location = ['/STFS0029M/CDMS/AUG/2023-08-01']
+# files_location = files_location[0:1]
+
+# files_location=[]
+
 
 for i in files_location:
     
     try:
         
-        if (config['CDMS_file1']) in os.listdir(i):
+        if (CDMS_properties['cdms_file1']) in os.listdir(i):
             
             
             print(i)
             
             
                 
-            file1 = pd.read_csv(i+"//"+config['CDMS_file1'])
+            file1 = pd.read_csv(i+"//"+CDMS_properties['cdms_file1'], sep="|")
 
 #            print(file1.columns)
 
-            print(file1[file1['CustomerNumber']==26536694]['CustomerLastName'])
+            # print(file1[file1['CustomerNumber']==26536694]['CustomerLastName'])
             
-            file2 = pd.read_csv(i+'//'+config['CDMS_file2'])
+            file2 = pd.read_csv(i+'//'+CDMS_properties['cdms_file2'], sep="|")
             
-            file3 = pd.read_csv(i+"//"+config['CDMS_file3'])
+            file3 = pd.read_csv(i+"//"+CDMS_properties['cdms_file3'], sep="|")
             
-            file4 = pd.read_csv(i+'//'+config['CDMS_file4'])
+            file4 = pd.read_csv(i+'//'+CDMS_properties['cdms_file4'], sep="|")
 
             file3['sort'] = 15
 
@@ -666,7 +682,7 @@ for i in files_location:
             
             # CDMS_merged.rename(columns = renaming_columns,inplace = True)
             
-            print(i.replace(config['replace_string'],config['replace_with']+"//CDMS_output.csv"))
+            print(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with']+"//CDMS_output.csv"))
             
             #Creating Hash Code function
             
@@ -693,13 +709,13 @@ for i in files_location:
             
 #            print(i.replace(config['replace_string'],config['replace_with'])+"//CDMS_output.csv")
             
-            if os.path.exists(i.replace(config['replace_string'],config['replace_with'])):
+            if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])):
                 
                 pass
             
             else:
                 
-                os.makedirs(i.replace(config['replace_string'],config['replace_with']))
+                os.makedirs(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with']))
     
     
     
@@ -1338,21 +1354,21 @@ for i in files_location:
             
 #            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
             
-            if os.path.exists(i.replace(config['replace_string'],config['replace_with'])+"//valid"):
+            if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid"):
                 
                 pass
             
             else:
                 
-                os.makedirs(i.replace(config['replace_string'],config['replace_with'])+"//valid")
+                os.makedirs(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid")
             
-            if os.path.exists(i.replace(config['replace_string'],config['replace_with'])+"//invalid"):
+            if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid"):
                 
                 pass
             
             else:
                 
-                os.makedirs(i.replace(config['replace_string'],config['replace_with'])+"//invalid")
+                os.makedirs(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid")
                 
                 
             if ('Remarks_y' in final_df.columns):
@@ -1396,10 +1412,10 @@ for i in files_location:
             
             final_df = final_df.replace('NONE','')
                 
-            final_df.to_csv(i.replace(config['replace_string'],config['replace_with'])+"//valid//CDMS_output.csv",index  = False)
+            final_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv",index  = False)
             
             
-            final_df = pd.read_csv(i.replace(config['replace_string'],config['replace_with'])+"//valid//CDMS_output.csv")
+            final_df = pd.read_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv")
             
             
             
@@ -1408,7 +1424,7 @@ for i in files_location:
             
             errored_df = final_df[(((final_df['EMAIL']=='') & (final_df['EMAIL_error']!='')) | ((final_df['LANDLINE_NO']=='') & (final_df['LANDLINE_NO_error']!='')) | ((final_df['EXPIRYDATE']=='') & (final_df['EXPIRYDATE_error']!='')) | ((final_df['LOAD_DT']=='') & (final_df['LOAD_DT_error']!='')) |((final_df['DATEOFBIRTH']=='') & (final_df['DATEOFBIRTH_error']!='')))]
             
-            errored_df.to_csv(i.replace(config['replace_string'],config['replace_with'])+"//invalid//errored_out.csv",index  = False)
+            errored_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//errored_out.csv",index  = False)
             
             headers_final.append('CUSTOMERADDRESS')
                         
@@ -1424,10 +1440,10 @@ for i in files_location:
 
             final_df['GEN_ID'] = ''
 
-            final_df['FILE_LOC'] = i.replace(config['replace_string'],config['replace_with'])+"//valid//CDMS_output.csv"
+            final_df['FILE_LOC'] = i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv"
 
             
-            final_df.to_csv(i.replace(config['replace_string'],config['replace_with'])+"//valid//CDMS_output.csv",index  = False)
+            final_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv",index  = False)
             
             
             
@@ -1467,9 +1483,9 @@ for i in files_location:
             
             print(len(invalid_records))
             
-            invalid_records.to_csv(i.replace(config['replace_string'],config['replace_with'])+"//invalid//CDMS_output.csv",index  = False)
+            invalid_records.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//CDMS_output.csv",index  = False)
             
-            corporate_customers.to_csv(i.replace(config['replace_string'],config['replace_with'])+"//valid//corporate_customers.csv",index  = False)
+            corporate_customers.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers.csv",index  = False)
             
             
             print(len(corporate_customers))
@@ -1484,62 +1500,63 @@ for i in files_location:
             
                 "fileName":"CDMS_output.csv",
             
-                "filePath":i.replace(config['replace_string'],config['replace_with'])+"//valid//",
+                "filePath":i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//",
             
                 "subListID":76,
             
                 "userID":149,
             
-                "businessHierarchyId":23
+                "businessHierarchyId":23,
+
+                "batchNo":"b1"
             
             }
             
             
-            
-#            response = requests.post(url = 'http://mr403s0332d.palawangroup.com:4200/fileUploadExternalApi',headers = {'X-AUTH-TOKEN':'eyJ1c2VybmFtZSI6InN5c3RlbSIsInRva2VuIjoiODRjOWZmNmQtZTllMy00MWUwLWI0MDctZmY5ZGQ5YjFmYWU4In0=','Content-Type':'application/json'},json = body)
+            response = requests.post(url = CDMS_properties['main_app']+'fileUploadExternalApi',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body)
             
             # print(hello)
             
-            # print(response.status_code)
+            print(response.status_code)
             
-            upload_id = 45
+            # upload_id = 45
             
+            print("Message sent successfully")
             
-            try:
-            
+            # try:
+
                 # producer = KafkaProducer(bootstrap_servers='MR402S0352D.palawangroup.com:9092')
             
-                topic = 'ftpKafkaConsumer'
+                # topic = 'ftpKafkaConsumer'
              
-                my_dict = {'fileUploadId': upload_id, 'filePath': i.replace(config['replace_string'],config['replace_with'])+"//valid//", 'fileName': 'CDMS_value.csv'}
+                # my_dict = {'fileUploadId': upload_id, 'filePath': i.replace(config['replace_string'],config['replace_with'])+"//valid//", 'fileName': 'CDMS_value.csv'}
                 # my_dict = {'fileUploadId': 314, 'filePath': '/STFS0029M/1491702726149369/', 'fileName': 'sampleDoc (98).csv'}
             
-                my_dict = json.dumps(my_dict)
+                # my_dict = json.dumps(my_dict)
             
                 # producer.send(topic, value=my_dict.encode('utf-8'))
             
-                print("Message sent successfully")
              
-            except Exception as e:
+            # except Exception as e:
             
-                print(f"Error: {e}")
+                # print(f"Error: {e}")
             
-            finally:
+            # finally:
             
                 # producer.close()
                 
-                pass
+                # pass
 
 
 
                 
-            with open('response.txt','r') as w:
+            # with open('response.txt','r') as w:
                 
-                text = w.read()
+            #     text = w.read()
 
-            with open('response.txt','w') as w:
+            # with open('response.txt','w') as w:
                 
-                w.write(text+str(count)+"."+i+"\n")
+            #     w.write(text+str(count)+"."+i+"\n")
                                     
 
                 
@@ -1550,16 +1567,16 @@ for i in files_location:
         print(traceback.print_exc())
                 
             
-        count = count+1
+        # count = count+1
             
             
-        with open('response.txt','r') as w:
+        # with open('response.txt','r') as w:
             
-            text = w.read()
+        #     text = w.read()
 
-        with open('response.txt','w') as w:
+        # with open('response.txt','w') as w:
             
-            w.write(text+"Error at file:"+str(count)+"."+i+"\n")
+        #     w.write(text+"Error at file:"+str(count)+"."+i+"\n")
 
 
 
