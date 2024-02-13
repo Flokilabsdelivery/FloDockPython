@@ -93,7 +93,9 @@ files_location = list(set(files_location))
 
 print(len(files_location))
 
-files_location  = ['/STFS0029M/PPG Extractor/2023-08-11','/STFS0029M/PPG Extractor/2023-09-07','/STFS0029M/PPG Extractor/2023-09-24','/STFS0029M/PPG Extractor/2023-10-12']
+#files_location  = ['/STFS0029M/PPG Extractor/2023-08-11','/STFS0029M/PPG Extractor/2023-09-07','/STFS0029M/PPG Extractor/2023-09-24','/STFS0029M/PPG Extractor/2023-10-12']
+
+files_location  = ['/STFS0029M/PPG Extractor/2023-08-09']
 
 print(files_location)
 
@@ -101,7 +103,7 @@ for i in files_location:
 
     csv_files = os.listdir(i)
 
-    csv_files=['CORPORATE_TXN_BENE.csv']
+    csv_files=['DEDUP_ACCIDENT_INSURANCE.csv']
 
     print(csv_files)
 
@@ -186,7 +188,9 @@ for i in files_location:
 
                 df[config['ADDRESS4']] = ''
 
-                df[config['CustomerAddress']] = df[config['ADDRESS1']]
+                df[config['ADDRESS1']] = df[config['ADDRESS1']].astype(str)
+
+                df[config['CustomerAddress']] = df[config['ADDRESS1']].str.replace(',',';')
 
                 df['floki_changes'] = ''
 
@@ -211,10 +215,10 @@ for i in files_location:
                 for words in last_name_words.split(','):
 
                     df[config['FirstName']] = df[config['FirstName']].str.replace(words.upper(),words.upper().replace(' ','-')) 
-        
+
                     df[config['LastName']] = df[config['LastName']].str.replace(words.upper(),words.upper().replace(' ','-')) 
 
-                df.to_csv('total_transaction.csv',index = False)
+                df.to_csv('total_transaction.csv', index=False, mode='a', header=not os.path.exists('total_transaction.csv'))
 
         except Exception as e:
 
