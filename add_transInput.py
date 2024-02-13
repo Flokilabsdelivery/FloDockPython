@@ -101,7 +101,7 @@ for i in files_location:
 
     csv_files = os.listdir(i)
 
-    csv_files=csv_files[0:1]
+    csv_files=['CORPORATE_TXN_BENE.csv']
 
     print(csv_files)
 
@@ -152,9 +152,69 @@ for i in files_location:
 
                 file1.rename(columns = {current_config.loc[0,'DOB'].upper():config['CustomerDOB']},inplace = True)
 
-                file1.rename(mapping1,inplace = True)
+                file1.rename(columns = mapping1,inplace = True)
 
-                file1.to_csv('total_transaction.csv',index = False)
+                # file1.to_csv('total_transaction.csv',index = False)
+
+                if 'CONTACT_DETAILS' not in file1.columns:
+
+                       file1['CONTACT_DETAILS'] = ''
+
+                if config['CustomerDOB'] not in list(file1.columns):
+                        
+                        file1[config['CustomerDOB']] = ''
+
+                missing_columns = set([config['FirstName'],config['LastName'],config['CustomerAddress'],config['CustomerDOB']]) - set(file1.columns) 
+
+                if len(missing_columns)>1:
+
+                    print('missing')
+
+                    print('columns missing in file '+current_config.loc[0,'File Name']+" : "+','.join(missing_columns))
+
+                    continue
+
+                df = file1.copy() 
+
+                with open('response_total.txt','a') as a:
+
+                     a.write(str(len(df))+"\n")
+
+                df[config['ADDRESS2']] = ''
+
+                df[config['ADDRESS3']] = ''
+
+                df[config['ADDRESS4']] = ''
+
+                df[config['CustomerAddress']] = df[config['ADDRESS1']]
+
+                df['floki_changes'] = ''
+
+                print('Input file Length')
+
+                print(len(df))
+
+                df[config['FirstName']] = df[config['FirstName']].fillna('')
+
+                df[config['LastName']] = df[config['LastName']].fillna('')
+
+                df[config['CustomerAddress']] = df[config['CustomerAddress']].fillna('')
+
+                df[config['FirstName']] = df[config['FirstName']].str.upper()
+
+                df['CustomerLasttName'] = df[config['LastName']].str.upper()
+
+                df[config['CustomerAddress']] = df[config['CustomerAddress']].str.upper()
+
+                last_name_words = config['lastname_words']
+
+                for words in last_name_words.split(','):
+
+                    df[config['FirstName']] = df[config['FirstName']].str.replace(words.upper(),words.upper().replace(' ','-')) 
+        
+                    df[config['LastName']] = df[config['LastName']].str.replace(words.upper(),words.upper().replace(' ','-')) 
+
+                df.to_csv('total_transaction.csv',index = False)
 
         except Exception as e:
 
