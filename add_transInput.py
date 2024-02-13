@@ -103,9 +103,9 @@ for i in files_location:
 
     csv_files = os.listdir(i)
 
-    csv_files=['DEDUP_ACCIDENT_INSURANCE.csv']
+    # csv_files=['DEDUP_ACCIDENT_INSURANCE.csv']
 
-    print(csv_files)
+    # print(csv_files)
 
     for transaction_file in csv_files:
 
@@ -176,21 +176,23 @@ for i in files_location:
 
                     continue
 
-                df = file1.copy() 
+                # df = file1.copy() 
 
-                with open('response_total.txt','a') as a:
-
-                     a.write(str(len(df))+"\n")
-
+                df = pd.DataFrame()
+     
                 df[config['ADDRESS2']] = ''
 
                 df[config['ADDRESS3']] = ''
 
                 df[config['ADDRESS4']] = ''
 
-                df[config['ADDRESS1']] = df[config['ADDRESS1']].astype(str)
+                df[config['ADDRESS1']] = file1[config['ADDRESS1']].astype(str)
 
-                df[config['CustomerAddress']] = df[config['ADDRESS1']].str.replace(',',';')
+                df[config['CustomerAddress']] = file1[config['ADDRESS1']].str.replace(',',';')
+
+                df['CONTACT_DETAILS']=file1['CONTACT_DETAILS']
+
+                df[config['CustomerDOB']]=file1[config['CustomerDOB']]
 
                 df['floki_changes'] = ''
 
@@ -198,17 +200,17 @@ for i in files_location:
 
                 print(len(df))
 
-                df[config['FirstName']] = df[config['FirstName']].fillna('')
+                df[config['FirstName']] = file1[config['FirstName']].fillna('')
 
-                df[config['LastName']] = df[config['LastName']].fillna('')
+                df[config['LastName']] = file1[config['LastName']].fillna('')
 
-                df[config['CustomerAddress']] = df[config['CustomerAddress']].fillna('')
+                df[config['CustomerAddress']] = file1[config['CustomerAddress']].fillna('')
 
-                df[config['FirstName']] = df[config['FirstName']].str.upper()
+                df[config['FirstName']] = file1[config['FirstName']].str.upper()
 
-                df['CustomerLasttName'] = df[config['LastName']].str.upper()
+                df['CustomerLasttName'] = file1[config['LastName']].str.upper()
 
-                df[config['CustomerAddress']] = df[config['CustomerAddress']].str.upper()
+                df[config['CustomerAddress']] = file1[config['CustomerAddress']].str.upper()
 
                 last_name_words = config['lastname_words']
 
