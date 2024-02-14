@@ -394,13 +394,13 @@ def single_character_check_lastname(row):
 df = pd.read_csv('total_transaction.csv')
 
 
-df = df[0:800000]
+# df = df[0:800000]
 #df = df[800001:1600000]
 #df = df[1600001:2400000]
 #df = df[2400001:3200000]
 #df = df[3200001:4000000]
 #df = df[4000001:4514109]
-
+df = df[0:20000]
 headers = pd.read_csv('headers_matching.csv')
 
 headers = dict(list(zip(headers['key'],headers['value'])))
@@ -434,8 +434,6 @@ for column in df.columns:
     df[column] = df[column].apply(lambda x: unidecode(str(x)) if pd.notnull(x) else x)
     
     df[column] = df[column].str.replace(',',';')
-    
-
 
 
 last_name_words = config['lastname_words']
@@ -465,20 +463,61 @@ for suffix in suffixes:
     df[config['LastName']] = df[config['LastName']].str.replace(suffix,'')
 
 
+print('corporate customers')
+            
+corp_name_pattern = ['ACADEMY ', ' ACADEMY', 'TECHNOLOGY ', ' TECHNOLOGY', 'TECHNO ', ' TECHNO', 'STALL ', ' STALL', 'SERVICES ', ' SERVICES', 'BRANCH ', ' BRANCH', 'OUTLET ', ' OUTLET', 'EXPRESS ', ' EXPRESS', 'CENTER ', ' CENTER', 'BUSINESS ', ' BUSINESS', 'CORPORATION ', ' CORPORATION', 'COMPANY ', ' COMPANY', ' INC ', '  INC', 'INC  ', ' INC ', 'COURIER ', ' COURIER', 'COOPERATIVE ', ' COOPERATIVE', 'BANK ', ' BANK', 'SECURITY ', ' SECURITY', 'DISTRIBUTOR ', ' DISTRIBUTOR', 'DISTILLERS ', ' DISTILLERS', 'PHARMACY ', ' PHARMACY', 'MOTORS ', ' MOTORS', 'SCHOOL ', ' SCHOOL', 'TRADEING ', ' TRADEING', 'ACCOUNTS ', ' ACCOUNTS', 'ASSOCIATION ', ' ASSOCIATION', 'UNIV ', ' UNIV', 'COLLEGES ', ' COLLEGES', 'MERCHANT/MERCHANDIZING ', ' MERCHANT/MERCHANDIZING', 'STORE ', ' STORE', 'PHILS ', ' PHILS', 'INSTITUTE ', ' INSTITUTE', 'LIMITED ', ' LIMITED', 'ENTERPRISES ', ' ENTERPRISES', 'VENTURES ', ' VENTURES', 'SHOP ', ' SHOP', 'BOUTIQUE ', ' BOUTIQUE', 'CLINIC ', ' CLINIC', 'HOSPITAL ', ' HOSPITAL', 'FINANCIAL ', ' FINANCIAL', 'PETROL ', ' PETROL', 'GASSTATION ', ' GASSTATION', 'FUEL ', ' FUEL', 'DRUG ', ' DRUG', 'TRAVEL ', ' TRAVEL', 'TOURS ', ' TOURS', 'TOURISM ', ' TOURISM', 'RESTAURANT ', ' RESTAURANT', 'LTD ', ' LTD', 'FINANCE ', ' FINANCE', 'REGION ', ' REGION', 'MARKETING ', ' MARKETING', 'DOLE NCR ', ' DOLE NCR', 'FOOD ', ' FOOD', 'BAKERY ', ' BAKERY', 'CONSTRUCTION ', ' CONSTRUCTION', 'BUILDERS ', ' BUILDERS', 'SUPPLY MATERIALS ', ' SUPPLY MATERIALS', 'JEWELRY ', ' JEWELRY', 'JEWELERS ', ' JEWELERS', 'EDUCATIONAL ', ' EDUCATIONAL', 'AUTO ', ' AUTO', 'MOTORCYCLE ', ' MOTORCYCLE', 'PARTS ', ' PARTS', 'INSURANCE ', ' INSURANCE', 'HEALTH ', ' HEALTH', 'WELLNESS ', ' WELLNESS', 'REALESTATE ', ' REALESTATE', 'PROPERTIES ', ' PROPERTIES']
+            
+df['CORPORATE'] = False
+            
+for corporate_key in corp_name_pattern:
+                
+    df_temp = df[df['CORPORATE']==False]
+                
+    df = df[df['CORPORATE']==True]
+                        
+    df_temp['CORPORATE'] = df_temp[config['FirstName']].str.contains(corporate_key)
+                
+    df = pd.concat([df,df_temp],axis = 0)        
+                
+    df_temp = df[df['CORPORATE']==False]
+                
+    df = df[df['CORPORATE']==True]
+                
+    df_temp['CORPORATE'] = df_temp[config['LastName']].str.contains(corporate_key)
+                
+    df = pd.concat([df,df_temp],axis = 0)        
+                     
+            #using branch codes
+            
+branch_codes = pd.read_excel('branch_code.xlsx',engine = 'openpyxl')
+            
+branch_codes1 = dict(list(zip(branch_codes['PEPP Code'],branch_codes['Partner Name'])))
+            
+df['some'] = ''
+    
+df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'CORPORATE'] = True
+            
+df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'some'] = df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'BRANCHCODE']
+            
+df['some'] = df['some'].replace(branch_codes1)
+            
+df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),config['LastName']] = df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'some']
+            
+df.drop(columns = ['some'],inplace = True)
+            
+corporate_customers = df[df['CORPORATE'] == True]
+            
+df = df[df['CORPORATE']==False]
+    
 
 df['reason'] = ''
 
 df['reason'].fillna('',inplace = True)
 
 
-
-#df = df[0:10000]
-
 df = df.apply(lambda row:single_character_check_firstname(row),axis = 1)
 
 print('first name completed')
-
-# df = df[0:10]
 
 
 
@@ -534,7 +573,9 @@ df = df.apply(lambda row:special_character_check_lastname(row),axis = 1)
 #print(df['valid'])
 df1 = df[df['reason'] == '']
 df2 = df[df['reason'] != '']
+df3 = df1[df1['CORPORATE'] == False]
+df4 = df1[df1['CORPORATE'] == True]
 
-
-df1.to_csv('valid_transaction.csv', index=False, mode='a', header=not os.path.exists('valid_transaction.csv'))
+df3.to_csv('valid_transaction.csv', index=False, mode='a', header=not os.path.exists('valid_transaction.csv'))
 df2.to_csv('invalid_transaction.csv', index=False, mode='a', header=not os.path.exists('invalid_transaction.csv'))
+df4.to_csv('corprate_transaction.csv', index=False, mode='a', header=not os.path.exists('invalid_transaction.csv'))
