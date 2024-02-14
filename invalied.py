@@ -394,13 +394,13 @@ def single_character_check_lastname(row):
 df = pd.read_csv('total_transaction.csv')
 
 
-# df = df[0:800000]
+df = df[0:800000]
 #df = df[800001:1600000]
 #df = df[1600001:2400000]
 #df = df[2400001:3200000]
 #df = df[3200001:4000000]
 #df = df[4000001:4514109]
-df = df[0:20000]
+
 headers = pd.read_csv('headers_matching.csv')
 
 headers = dict(list(zip(headers['key'],headers['value'])))
@@ -573,9 +573,6 @@ df = df.apply(lambda row:special_character_check_lastname(row),axis = 1)
 #print(df['valid'])
 df1 = df[df['reason'] == '']
 df2 = df[df['reason'] != '']
-df3 = df1[df1['CORPORATE'] == False]
-df4 = df1[df1['CORPORATE'] == True]
 
-df3.to_csv('valid_transaction.csv', index=False, mode='a', header=not os.path.exists('valid_transaction.csv'))
+df1.to_csv('valid_transaction.csv', index=False, mode='a', header=not os.path.exists('valid_transaction.csv'))
 df2.to_csv('invalid_transaction.csv', index=False, mode='a', header=not os.path.exists('invalid_transaction.csv'))
-df4.to_csv('corprate_transaction.csv', index=False, mode='a', header=not os.path.exists('invalid_transaction.csv'))
