@@ -2,6 +2,8 @@ import pandas as pd
 
 import re
 
+import os
+
 from unidecode import unidecode
 
 config = pd.read_excel('config.xlsx',engine = 'openpyxl')
@@ -389,17 +391,23 @@ def single_character_check_lastname(row):
 
 
 
-df = pd.read_csv('inputs.csv')
+df = pd.read_csv('total_transaction.csv')
 
-#df = df[0:10000]
+
+df = df[0:800000]
+#df = df[800001:1600000]
+#df = df[1600001:2400000]
+#df = df[2400001:3200000]
+#df = df[3200001:4000000]
+#df = df[4000001:4514109]
 
 headers = pd.read_csv('headers_matching.csv')
 
 headers = dict(list(zip(headers['key'],headers['value'])))
 
-df.rename(columns = headers,inplace = True)
+#df.rename(columns = headers,inplace = True)
 
-df[config['CustomerAddress']] = df[config['ADDRESS1']] + df[config['ADDRESS2']] + df[config['ADDRESS3']] + df[config['ADDRESS4']]
+#df[config['CustomerAddress']] = df[config['ADDRESS1']] + df[config['ADDRESS2']] + df[config['ADDRESS3']] + df[config['ADDRESS4']]
 
 
 
@@ -524,8 +532,9 @@ df['reason'].fillna('',inplace = True)
 df = df.apply(lambda row:special_character_check_lastname(row),axis = 1)
 
 #print(df['valid'])
+df1 = df[df['reason'] == '']
+df2 = df[df['reason'] != '']
 
 
-
-
-df.to_csv('invalids_new.csv')
+df1.to_csv('valid_transaction.csv', index=False, mode='a', header=not os.path.exists('valid_transaction.csv'))
+df2.to_csv('invalid_transaction.csv', index=False, mode='a', header=not os.path.exists('invalid_transaction.csv'))
