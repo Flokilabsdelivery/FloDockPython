@@ -475,51 +475,51 @@ for i, chunk_df in enumerate(pd.read_csv('total_transaction.csv', chunksize=chun
         df[config['LastName']] = df[config['LastName']].str.replace(suffix,'')
 
 
-    print('corporate customers')
+    # print('corporate customers')
                 
-    corp_name_pattern = ['ACADEMY ', ' ACADEMY', 'TECHNOLOGY ', ' TECHNOLOGY', 'TECHNO ', ' TECHNO', 'STALL ', ' STALL', 'SERVICES ', ' SERVICES', 'BRANCH ', ' BRANCH', 'OUTLET ', ' OUTLET', 'EXPRESS ', ' EXPRESS', 'CENTER ', ' CENTER', 'BUSINESS ', ' BUSINESS', 'CORPORATION ', ' CORPORATION', 'COMPANY ', ' COMPANY', ' INC ', '  INC', 'INC  ', ' INC ', 'COURIER ', ' COURIER', 'COOPERATIVE ', ' COOPERATIVE', 'BANK ', ' BANK', 'SECURITY ', ' SECURITY', 'DISTRIBUTOR ', ' DISTRIBUTOR', 'DISTILLERS ', ' DISTILLERS', 'PHARMACY ', ' PHARMACY', 'MOTORS ', ' MOTORS', 'SCHOOL ', ' SCHOOL', 'TRADEING ', ' TRADEING', 'ACCOUNTS ', ' ACCOUNTS', 'ASSOCIATION ', ' ASSOCIATION', 'UNIV ', ' UNIV', 'COLLEGES ', ' COLLEGES', 'MERCHANT/MERCHANDIZING ', ' MERCHANT/MERCHANDIZING', 'STORE ', ' STORE', 'PHILS ', ' PHILS', 'INSTITUTE ', ' INSTITUTE', 'LIMITED ', ' LIMITED', 'ENTERPRISES ', ' ENTERPRISES', 'VENTURES ', ' VENTURES', 'SHOP ', ' SHOP', 'BOUTIQUE ', ' BOUTIQUE', 'CLINIC ', ' CLINIC', 'HOSPITAL ', ' HOSPITAL', 'FINANCIAL ', ' FINANCIAL', 'PETROL ', ' PETROL', 'GASSTATION ', ' GASSTATION', 'FUEL ', ' FUEL', 'DRUG ', ' DRUG', 'TRAVEL ', ' TRAVEL', 'TOURS ', ' TOURS', 'TOURISM ', ' TOURISM', 'RESTAURANT ', ' RESTAURANT', 'LTD ', ' LTD', 'FINANCE ', ' FINANCE', 'REGION ', ' REGION', 'MARKETING ', ' MARKETING', 'DOLE NCR ', ' DOLE NCR', 'FOOD ', ' FOOD', 'BAKERY ', ' BAKERY', 'CONSTRUCTION ', ' CONSTRUCTION', 'BUILDERS ', ' BUILDERS', 'SUPPLY MATERIALS ', ' SUPPLY MATERIALS', 'JEWELRY ', ' JEWELRY', 'JEWELERS ', ' JEWELERS', 'EDUCATIONAL ', ' EDUCATIONAL', 'AUTO ', ' AUTO', 'MOTORCYCLE ', ' MOTORCYCLE', 'PARTS ', ' PARTS', 'INSURANCE ', ' INSURANCE', 'HEALTH ', ' HEALTH', 'WELLNESS ', ' WELLNESS', 'REALESTATE ', ' REALESTATE', 'PROPERTIES ', ' PROPERTIES']
+    # corp_name_pattern = ['ACADEMY ', ' ACADEMY', 'TECHNOLOGY ', ' TECHNOLOGY', 'TECHNO ', ' TECHNO', 'STALL ', ' STALL', 'SERVICES ', ' SERVICES', 'BRANCH ', ' BRANCH', 'OUTLET ', ' OUTLET', 'EXPRESS ', ' EXPRESS', 'CENTER ', ' CENTER', 'BUSINESS ', ' BUSINESS', 'CORPORATION ', ' CORPORATION', 'COMPANY ', ' COMPANY', ' INC ', '  INC', 'INC  ', ' INC ', 'COURIER ', ' COURIER', 'COOPERATIVE ', ' COOPERATIVE', 'BANK ', ' BANK', 'SECURITY ', ' SECURITY', 'DISTRIBUTOR ', ' DISTRIBUTOR', 'DISTILLERS ', ' DISTILLERS', 'PHARMACY ', ' PHARMACY', 'MOTORS ', ' MOTORS', 'SCHOOL ', ' SCHOOL', 'TRADEING ', ' TRADEING', 'ACCOUNTS ', ' ACCOUNTS', 'ASSOCIATION ', ' ASSOCIATION', 'UNIV ', ' UNIV', 'COLLEGES ', ' COLLEGES', 'MERCHANT/MERCHANDIZING ', ' MERCHANT/MERCHANDIZING', 'STORE ', ' STORE', 'PHILS ', ' PHILS', 'INSTITUTE ', ' INSTITUTE', 'LIMITED ', ' LIMITED', 'ENTERPRISES ', ' ENTERPRISES', 'VENTURES ', ' VENTURES', 'SHOP ', ' SHOP', 'BOUTIQUE ', ' BOUTIQUE', 'CLINIC ', ' CLINIC', 'HOSPITAL ', ' HOSPITAL', 'FINANCIAL ', ' FINANCIAL', 'PETROL ', ' PETROL', 'GASSTATION ', ' GASSTATION', 'FUEL ', ' FUEL', 'DRUG ', ' DRUG', 'TRAVEL ', ' TRAVEL', 'TOURS ', ' TOURS', 'TOURISM ', ' TOURISM', 'RESTAURANT ', ' RESTAURANT', 'LTD ', ' LTD', 'FINANCE ', ' FINANCE', 'REGION ', ' REGION', 'MARKETING ', ' MARKETING', 'DOLE NCR ', ' DOLE NCR', 'FOOD ', ' FOOD', 'BAKERY ', ' BAKERY', 'CONSTRUCTION ', ' CONSTRUCTION', 'BUILDERS ', ' BUILDERS', 'SUPPLY MATERIALS ', ' SUPPLY MATERIALS', 'JEWELRY ', ' JEWELRY', 'JEWELERS ', ' JEWELERS', 'EDUCATIONAL ', ' EDUCATIONAL', 'AUTO ', ' AUTO', 'MOTORCYCLE ', ' MOTORCYCLE', 'PARTS ', ' PARTS', 'INSURANCE ', ' INSURANCE', 'HEALTH ', ' HEALTH', 'WELLNESS ', ' WELLNESS', 'REALESTATE ', ' REALESTATE', 'PROPERTIES ', ' PROPERTIES']
                 
-    df['CORPORATE'] = False
+    # df['CORPORATE'] = False
                 
-    for corporate_key in corp_name_pattern:
+    # for corporate_key in corp_name_pattern:
                     
-        df_temp = df[df['CORPORATE']==False]
+    #     df_temp = df[df['CORPORATE']==False]
                     
-        df = df[df['CORPORATE']==True]
+    #     df = df[df['CORPORATE']==True]
                             
-        df_temp['CORPORATE'] = df_temp[config['FirstName']].str.contains(corporate_key)
+    #     df_temp['CORPORATE'] = df_temp[config['FirstName']].str.contains(corporate_key)
                     
-        df = pd.concat([df,df_temp],axis = 0)        
+    #     df = pd.concat([df,df_temp],axis = 0)        
                     
-        df_temp = df[df['CORPORATE']==False]
+    #     df_temp = df[df['CORPORATE']==False]
                     
-        df = df[df['CORPORATE']==True]
+    #     df = df[df['CORPORATE']==True]
                     
-        df_temp['CORPORATE'] = df_temp[config['LastName']].str.contains(corporate_key)
+    #     df_temp['CORPORATE'] = df_temp[config['LastName']].str.contains(corporate_key)
                     
-        df = pd.concat([df,df_temp],axis = 0)        
+    #     df = pd.concat([df,df_temp],axis = 0)        
                         
-                #using branch codes
+    #             #using branch codes
                 
-    branch_codes = pd.read_excel('branch_code.xlsx',engine = 'openpyxl')
+    # branch_codes = pd.read_excel('branch_code.xlsx',engine = 'openpyxl')
                 
-    branch_codes1 = dict(list(zip(branch_codes['PEPP Code'],branch_codes['Partner Name'])))
+    # branch_codes1 = dict(list(zip(branch_codes['PEPP Code'],branch_codes['Partner Name'])))
                 
-    df['some'] = ''
+    # df['some'] = ''
         
-    df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'CORPORATE'] = True
+    # df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'CORPORATE'] = True
                 
-    df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'some'] = df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'BRANCHCODE']
+    # df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'some'] = df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'BRANCHCODE']
                 
-    df['some'] = df['some'].replace(branch_codes1)
+    # df['some'] = df['some'].replace(branch_codes1)
                 
-    df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),config['LastName']] = df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'some']
+    # df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),config['LastName']] = df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'some']
                 
-    df.drop(columns = ['some'],inplace = True)
+    # df.drop(columns = ['some'],inplace = True)
                 
-    corporate_customers = df[df['CORPORATE'] == True]
+    # corporate_customers = df[df['CORPORATE'] == True]
                 
-    df = df[df['CORPORATE']==False]
+    # df = df[df['CORPORATE']==False]
         
 
     df['reason'] = ''

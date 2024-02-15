@@ -9,19 +9,17 @@ import pandas as pd
 
 import hashlib
 
+import os
+
 config = pd.read_excel('config.xlsx',engine = 'openpyxl')
 
 config = dict(list(zip(config['key'],config['value'])))
 
-df = pd.read_csv('valid_transaction1.csv')
+df_ = pd.read_csv('valid_transaction1.csv')
 
-total_rows = len(df)
-
-df=df[0:20000]
+total_rows = len(df_)
 
 def hash(row,column,hash_value):
- 
-    columnName = 'hash_'
  
     concatstr = ''
  
@@ -33,50 +31,58 @@ def hash(row,column,hash_value):
     
     return row
 
-df1 = df[((df['reason'].isna()) | (df['reason']==''))]
+chunk_size = 100000 
 
-df = df[((df['reason'].isna()) | (df['reason']==''))]
+for i, chunk_df in enumerate(pd.read_csv('total_transaction.csv', chunksize=chunk_size, low_memory=False)):
 
-missing_columns = set(config['HASH_1_columns'].split(',')) - set(df.columns)
+    start_index = i * chunk_size
 
-for xy in missing_columns:
-    
-    df[xy] = ''
+    end_index = min((i + 1) * chunk_size, total_rows)
 
-missing_columns = set(config['HASH_2_columns'].split(',')) - set(df.columns)
+    print(f"Processing chunk {i+1}: Rows {start_index}-{end_index}")
 
-for xy in missing_columns:
-    
-    df[xy] = ''
-    
-for xy in config['HASH_1_columns'].split(','):
-    
-    df[xy].fillna('',inplace = True)
-    
-for xy in config['HASH_2_columns'].split(','):
-    
-    df[xy].fillna('',inplace = True)
+    df = df_[start_index:end_index]
 
-print('hash started')
+    missing_columns = set(config['HASH_1_columns'].split(',')) - set(df.columns)
 
-df = df.apply(lambda row:hash(row,config['HASH_1_columns'].split(','),'HASH_1'),axis = 1)
+    for xy in missing_columns:
+        
+        df[xy] = ''
 
-df = df.apply(lambda row:hash(row,config['HASH_2_columns'].split(','),'HASH_2'),axis = 1)
+    missing_columns = set(config['HASH_2_columns'].split(',')) - set(df.columns)
 
-print('hash ended')
+    for xy in missing_columns:
+        
+        df[xy] = ''
+        
+    for xy in config['HASH_1_columns'].split(','):
+        
+        df[xy].fillna('',inplace = True)
+        
+    for xy in config['HASH_2_columns'].split(','):
+        
+        df[xy].fillna('',inplace = True)
 
-with open('response.txt','r') as w:
+    print('hash started')
 
-    text = w.read()
+    df = df.apply(lambda row:hash(row,config['HASH_1_columns'].split(','),'HASH_1'),axis = 1)
 
-with open('response.txt','w') as w:
+    df = df.apply(lambda row:hash(row,config['HASH_2_columns'].split(','),'HASH_2'),axis = 1)
 
-    w.write(text+str(total_rows)+".")
+    print('hash ended')
+
+    with open('response.txt','r') as w:
+
+        text = w.read()
+
+    with open('response.txt','w') as w:
+
+        w.write(f"Processed chunk {i+1}: Rows {start_index}-{end_index}")
 
 
-df1.to_csv('invalids_after_separation.csv',index = False)
+    # df1.to_csv('invalids_after_separation.csv',index = False)
 
-df.to_csv('valid_with_hash.csv',index = False)
+    df.to_csv('valid_with_hash.csv',index = False, mode='a', header=not os.path.exists('valid_with_hash.csv'))
 
 
 
