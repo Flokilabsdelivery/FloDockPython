@@ -405,12 +405,12 @@ for i, chunk_df in enumerate(pd.read_csv('total_transaction.csv', chunksize=chun
 
     print(f"Processing chunk {i+1}: Rows {start_index}-{end_index}")
 
-# df = df[0:800000]
-#df = df[800001:1600000]
-#df = df[1600001:2400000]
-#df = df[2400001:3200000]
-#df = df[3200001:4000000]
-#df = df[4000001:4514109]
+#    df = df[0:800000]
+#    df = df[800001:1600000]
+#    df = df[1600001:2400000]
+#    df = df[2400001:3200000]
+#    df = df[3200001:4000000]
+#    df = df[4000001:4514109]
     df = df_[start_index:end_index]
 
     headers = pd.read_csv('headers_matching.csv')

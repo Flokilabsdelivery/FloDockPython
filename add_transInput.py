@@ -93,9 +93,9 @@ files_location = list(set(files_location))
 
 print(len(files_location))
 
-#files_location  = ['/STFS0029M/PPG Extractor/2023-08-11','/STFS0029M/PPG Extractor/2023-09-07','/STFS0029M/PPG Extractor/2023-09-24','/STFS0029M/PPG Extractor/2023-10-12']
+files_location  = ['/STFS0029M/PPG Extractor/2023-08-09','/STFS0029M/PPG Extractor/2023-08-11','/STFS0029M/PPG Extractor/2023-09-07','/STFS0029M/PPG Extractor/2023-09-24','/STFS0029M/PPG Extractor/2023-10-12']
 
-files_location  = ['/STFS0029M/PPG Extractor/2023-08-09']
+#files_location  = ['/STFS0029M/PPG Extractor/2023-08-09']
 
 print(files_location)
 
@@ -103,7 +103,7 @@ for i in files_location:
 
     csv_files = os.listdir(i)
 
-    # csv_files=['DEDUP_ACCIDENT_INSURANCE.csv']
+    #csv_files=['DEDUP_ACCIDENT_INSURANCE.csv']
 
     # print(csv_files)
 
@@ -140,11 +140,15 @@ for i in files_location:
 
                 columns = []
 
+                print(file1.columns)
+
                 for j in file1.columns:
 
                     columns.append(j.upper())
 
                 file1.columns = columns
+
+                print(current_config)
 
                 file1.rename(columns = {current_config.loc[0,'First Name'].upper():config['FirstName']},inplace = True)
 
@@ -154,13 +158,33 @@ for i in files_location:
 
                 file1.rename(columns = {current_config.loc[0,'DOB'].upper():config['CustomerDOB']},inplace = True)
 
+                file1.rename(columns = {current_config.loc[0,'Contact'].upper():config['mobile_no']},inplace = True)
+
                 file1.rename(columns = mapping1,inplace = True)
+
+#                for j in file1.columns:
+
+#                    columns.append(j.upper())
+
+#                file1.columns = columns
 
                 # file1.to_csv('total_transaction.csv',index = False)
 
+                print(file1.columns)
+
+                print(mapping1)
+
                 if 'CONTACT_DETAILS' not in file1.columns:
 
+                       print('no contact')
+
                        file1['CONTACT_DETAILS'] = ''
+
+                if 'BRANCHCODE' not in file1.columns:
+
+                       print('no BRANCHCODE')
+
+                       file1['BRANCHCODE'] = ''
 
                 if config['CustomerDOB'] not in list(file1.columns):
                         
@@ -186,11 +210,13 @@ for i in files_location:
 
                 df[config['ADDRESS4']] = ''
 
-                df[config['ADDRESS1']] = file1[config['ADDRESS1']].astype(str)
+                file1[config['ADDRESS1']] = file1[config['ADDRESS1']].astype(str)
 
                 df[config['CustomerAddress']] = file1[config['ADDRESS1']].str.replace(',',';')
 
                 df['CONTACT_DETAILS']=file1['CONTACT_DETAILS']
+
+                df['BRANCHCODE']=file1['BRANCHCODE']
 
                 df[config['CustomerDOB']]=file1[config['CustomerDOB']]
 
@@ -204,13 +230,13 @@ for i in files_location:
 
                 df[config['LastName']] = file1[config['LastName']].fillna('')
 
-                df[config['CustomerAddress']] = file1[config['CustomerAddress']].fillna('')
+                df[config['CustomerAddress']] = df[config['CustomerAddress']].fillna('')
 
                 df[config['FirstName']] = file1[config['FirstName']].str.upper()
 
                 df['CustomerLasttName'] = file1[config['LastName']].str.upper()
 
-                df[config['CustomerAddress']] = file1[config['CustomerAddress']].str.upper()
+                df[config['CustomerAddress']] = df[config['CustomerAddress']].str.upper()
 
                 last_name_words = config['lastname_words']
 
@@ -221,6 +247,8 @@ for i in files_location:
                     df[config['LastName']] = df[config['LastName']].str.replace(words.upper(),words.upper().replace(' ','-')) 
 
                 df.to_csv('total_transaction.csv', index=False, mode='a', header=not os.path.exists('total_transaction.csv'))
+
+#                 df.to_csv('total_transaction_check.csv', index=False)
 
         except Exception as e:
 

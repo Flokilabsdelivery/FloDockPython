@@ -13,7 +13,11 @@ config = pd.read_excel('config.xlsx',engine = 'openpyxl')
 
 config = dict(list(zip(config['key'],config['value'])))
 
-df = pd.read_csv('invalids_new.csv')
+df = pd.read_csv('valid_transaction1.csv')
+
+total_rows = len(df)
+
+df=df[0:20000]
 
 def hash(row,column,hash_value):
  
@@ -53,11 +57,21 @@ for xy in config['HASH_2_columns'].split(','):
     
     df[xy].fillna('',inplace = True)
 
-
+print('hash started')
 
 df = df.apply(lambda row:hash(row,config['HASH_1_columns'].split(','),'HASH_1'),axis = 1)
 
 df = df.apply(lambda row:hash(row,config['HASH_2_columns'].split(','),'HASH_2'),axis = 1)
+
+print('hash ended')
+
+with open('response.txt','r') as w:
+
+    text = w.read()
+
+with open('response.txt','w') as w:
+
+    w.write(text+str(total_rows)+".")
 
 
 df1.to_csv('invalids_after_separation.csv',index = False)
