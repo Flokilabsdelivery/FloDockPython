@@ -578,7 +578,7 @@ count = 0
 total_dataframe = pd.DataFrame()
 
 
-# files_location = files_location[0:1]
+#files_location = files_location[0:1]
 
 # files_location=[]
 
@@ -596,7 +596,7 @@ for i in files_location:
                 
             file1 = pd.read_csv(i+"//"+CDMS_properties['cdms_file1'], sep="|")
 
-#            print(file1.columns)
+            print(file1.columns)
 
             # print(file1[file1['CustomerNumber']==26536694]['CustomerLastName'])
             
