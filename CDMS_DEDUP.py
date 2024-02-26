@@ -544,9 +544,19 @@ CDMS_properties = {}
 for option in config_parser.options('default'):
     CDMS_properties[option] = config_parser.get('default', option)
 
-print('properties files')
+process_name=''
 
-print(CDMS_properties['cdms_file1'])
+if __name__ == "__main__":
+    
+    if len(sys.argv) > 1:
+
+        process_name = sys.argv[1]
+
+        print(f"Process Name: {process_name}")
+
+    else:
+
+        print("No process name provided.")
 
 drive_to_list = CDMS_properties['source_path']
 
@@ -578,9 +588,9 @@ count = 0
 total_dataframe = pd.DataFrame()
 
 
-#files_location = files_location[0:1]
+# files_location = files_location[0:1]
 
-# files_location=[]
+# files_location=['C:/Users/cbt/Desktop/python/CDMS/2023-08-02']
 
 
 for i in files_location:
@@ -589,16 +599,46 @@ for i in files_location:
         
         if (CDMS_properties['cdms_file1']) in os.listdir(i):
             
+            # print(i)
+
+            fileName = "CDMS_output.csv"
+
+            location = i
+
+            processName = process_name
+
+            url = CDMS_properties['main_app'] + 'crm/getDudupStatus'
+
+            params = {
+                'fileName': fileName,
+                'location': location,
+                'processName': process_name
+            }
+            headers = {
+                'X-AUTH-TOKEN': CDMS_properties['x-auth-token'],
+                'Content-Type': 'application/json'
+            }
+
+            # print(url)
+
+            response = requests.get(url=url, params=params, headers=headers)
             
-            print(i)
+            content =False
+
+            if response.status_code == 200:
+                # Parse JSON response
+                response_data = response.json()
+                content = response_data['content']  # Extract the 'content' field from the response
+                # print("Content:", content)
+            else:
+                print("Request failed with status code:", response.status_code)
+
+            if not content:
+                continue
             
+            # print ('not break')
             
-                
             file1 = pd.read_csv(i+"//"+CDMS_properties['cdms_file1'], sep="|")
-
-            print(file1.columns)
-
-            # print(file1[file1['CustomerNumber']==26536694]['CustomerLastName'])
             
             file2 = pd.read_csv(i+'//'+CDMS_properties['cdms_file2'], sep="|")
             
@@ -682,7 +722,7 @@ for i in files_location:
             
             # CDMS_merged.rename(columns = renaming_columns,inplace = True)
             
-            print(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with']+"//CDMS_output.csv"))
+            # print(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with']+"//CDMS_output.csv"))
             
             #Creating Hash Code function
             
@@ -730,7 +770,7 @@ for i in files_location:
             
             df = CDMS_output.copy()
             
-            print(df[df['CUSTOMER_ID']==26536694]['LASTNAME'])
+            # print(df[df['CUSTOMER_ID']==26536694]['LASTNAME'])
             
             errored_headers = ['EMAIL','LANDLINE_NO','EXPIRYDATE','LOAD_DT','ISSUEDATE','DATEOFBIRTH']
             
@@ -766,7 +806,7 @@ for i in files_location:
             
             df[config['CustomerAddress']] = df[config['CustomerAddress']].str.upper()  
 
-            print(df[df['CUSTOMER_ID']==26536694]['LASTNAME'])
+            # print(df[df['CUSTOMER_ID']==26536694]['LASTNAME'])
     
             #dela cruz
             
@@ -786,7 +826,7 @@ for i in files_location:
             
                     
     
-            print(df[df['CUSTOMER_ID']==26536694]['LASTNAME'])
+            # print(df[df['CUSTOMER_ID']==26536694]['LASTNAME'])
             #change_accent
             
             for column in df.columns:
@@ -797,12 +837,12 @@ for i in files_location:
                 
                 df[column] = df[column].str.replace(',',';')
                 
-            print(df[df['CUSTOMER_ID']=='26536694']['LASTNAME'])
+            # print(df[df['CUSTOMER_ID']=='26536694']['LASTNAME'])
             
             
             df = df.apply(lambda row:change_accent(row),axis = 1)
             
-            print(df[df['CUSTOMER_ID']=='26536694']['LASTNAME'])
+            # print(df[df['CUSTOMER_ID']=='26536694']['LASTNAME'])
             #email validation
             
             for column in ['EMAIL','LANDLINE_NO']:
@@ -1018,9 +1058,9 @@ for i in files_location:
     
 #            df.loc[df_invalid_phone,'reason'] = 'phone number is invalid'
             
-            print(df[df['CONTACT_DETAILS']=='0']['valid'].unique())             
+            # print(df[df['CONTACT_DETAILS']=='0']['valid'].unique())             
     
-            print()    
+            # print()    
             
 #            print(df['valid'])
             
@@ -1112,7 +1152,7 @@ for i in files_location:
 
             # total_dataframe  = pd.concat([total_dataframe,df],axis = 0)
             
-            print(len(total_dataframe))
+            # print(len(total_dataframe))
             
             final_df = df.copy()
 
@@ -1445,7 +1485,7 @@ for i in files_location:
             
             final_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv",index  = False)
             
-            
+            final_count =len(final_df)
             
             
             # duplicate_hash.to_csv('invalid//duplicates_'+business.loc[i,'File Name'],index  = False)
@@ -1488,9 +1528,9 @@ for i in files_location:
             corporate_customers.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers.csv",index  = False)
             
             
-            print(len(corporate_customers))
+            # print(len(corporate_customers))
 
-            print(len(final_df))
+            # print(len(final_df))
 
 
             
@@ -1514,42 +1554,55 @@ for i in files_location:
             
             
             response = requests.post(url = CDMS_properties['main_app']+'fileUploadExternalApi',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body)
+
+            upload_id=0         
+
+            if response.status_code == 200:
+                # Parse JSON response
+                response_data = response.json()
+                content = response_data['content']  # Extract the 'content' field from the response
+                
+                # Check if content exists and if it has 'uploadId'
+                if content and 'uploadId' in content:
+                    upload_id = content['uploadId']
+                    # print("Upload ID:", upload_id)
+                else:
+                    print("Upload ID not found in the response content.")
+            else:
+                print("Request failed with status code:", response.status_code)
+
+            checker_body = {
             
-            # print(hello)
+                "fileName":"CDMS_output.csv",
             
-            print(response.status_code)
+                "location":i,
             
-            # upload_id = 45
+                "status":'Success',
+            
+                "count":final_count,
+            
+                "uploadId":upload_id,
+
+                "processName":process_name,
+
+                "origin":"CDMS",
+            
+                "subListID":76,
+            
+                "userID":149,
+            
+                "businessHierarchyId":23
+            
+            }
+
+            response = requests.post(url = CDMS_properties['main_app']+'crm/saveDudupStatus',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = checker_body)
+                        
+            if response.status_code != 200:
+
+                print("Save DeDup Request failed with status code:", response.status_code)
             
             print("Message sent successfully")
-            
-            # try:
-
-                # producer = KafkaProducer(bootstrap_servers='MR402S0352D.palawangroup.com:9092')
-            
-                # topic = 'ftpKafkaConsumer'
-             
-                # my_dict = {'fileUploadId': upload_id, 'filePath': i.replace(config['replace_string'],config['replace_with'])+"//valid//", 'fileName': 'CDMS_value.csv'}
-                # my_dict = {'fileUploadId': 314, 'filePath': '/STFS0029M/1491702726149369/', 'fileName': 'sampleDoc (98).csv'}
-            
-                # my_dict = json.dumps(my_dict)
-            
-                # producer.send(topic, value=my_dict.encode('utf-8'))
-            
-             
-            # except Exception as e:
-            
-                # print(f"Error: {e}")
-            
-            # finally:
-            
-                # producer.close()
-                
-                # pass
-
-
-
-                
+                                        
             # with open('response.txt','r') as w:
                 
             #     text = w.read()
