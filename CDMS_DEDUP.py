@@ -660,13 +660,13 @@ for i in files_location:
 
             chunk_size = 100000 
 
-            for i, chunk_df in enumerate(pd.read_csv(i+"//"+CDMS_properties['cdms_file1'], chunksize=chunk_size, low_memory=False)):
+            for j, chunk_df in enumerate(pd.read_csv(i+"//"+CDMS_properties['cdms_file1'], chunksize=chunk_size, low_memory=False)):
 
-                start_index = i * chunk_size
+                start_index = j * chunk_size
 
-                end_index = min((i + 1) * chunk_size, total_rows)
+                end_index = min((j + 1) * chunk_size, total_rows)
 
-                print(f"Processing chunk {i+1}: Rows {start_index}-{end_index}")
+                print(f"Processing chunk {j+1}: Rows {start_index}-{end_index}")
 
                 CDMS_merged = df_[start_index:end_index]
             
