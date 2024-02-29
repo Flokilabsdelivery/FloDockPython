@@ -654,994 +654,1008 @@ for i in files_location:
             
             # print ('not break')
 
-            CDMS_merged = pd.read_csv(i+"//"+CDMS_properties['cdms_file1'])
+            df_ = pd.read_csv(i+"//"+CDMS_properties['cdms_file1'])
+
+            total_rows = len(df_)
+
+            chunk_size = 100000 
+
+            for i, chunk_df in enumerate(pd.read_csv(i+"//"+CDMS_properties['cdms_file1'], chunksize=chunk_size, low_memory=False)):
+
+                start_index = i * chunk_size
+
+                end_index = min((i + 1) * chunk_size, total_rows)
+
+                print(f"Processing chunk {i+1}: Rows {start_index}-{end_index}")
+
+                CDMS_merged = df_[start_index:end_index]
             
-            # file1 = pd.read_csv(i+"//"+CDMS_properties['cdms_file1'], sep="|")
+                # file1 = pd.read_csv(i+"//"+CDMS_properties['cdms_file1'], sep="|")
+                
+                # file2 = pd.read_csv(i+'//'+CDMS_properties['cdms_file2'], sep="|")
+                
+                # file3 = pd.read_csv(i+"//"+CDMS_properties['cdms_file3'], sep="|")
+                
+                # file4 = pd.read_csv(i+'//'+CDMS_properties['cdms_file4'], sep="|")
+
+                # file3['sort'] = 15
+
+                # file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 1)),'sort'] = 1
+
+                # file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 1)),'sort'] = 2 
+
+                # file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 2)),'sort'] = 3
+
+                # file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 2)),'sort'] = 4
+
+                # file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 3)),'sort'] = 5
+
+                # file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 4)),'sort'] = 6
+
+                # file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 3)),'sort'] = 7
+    
+                # file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 4)),'sort'] = 8
+
+                # file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 5)),'sort'] = 9
+
+                # file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 5)),'sort'] = 10
+
+                # file3.sort_values(['CustomerNumber','sort'],inplace = True,ascending = True)
+
+                # file3.drop_duplicates(['CustomerNumber'],inplace = True)
+
+
+
             
-            # file2 = pd.read_csv(i+'//'+CDMS_properties['cdms_file2'], sep="|")
-            
-            # file3 = pd.read_csv(i+"//"+CDMS_properties['cdms_file3'], sep="|")
-            
-            # file4 = pd.read_csv(i+'//'+CDMS_properties['cdms_file4'], sep="|")
+                headers = pd.read_csv('single_header_match.csv')
+                
+                headers = dict(list(zip(headers['key'],headers['value'])))
+                
+                CDMS_merged.rename(columns = headers,inplace = True)
 
-            # file3['sort'] = 15
+                # file1.rename(columns = headers,inplace = True)
+                
+                # file2.rename(columns = headers,inplace = True)
+                
+                # file3.rename(columns = headers,inplace = True)
+                
+                # file4.rename(columns = headers,inplace = True)
+                    
+                
 
-            # file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 1)),'sort'] = 1
+                # file3.loc[file3['sort']==15,config['ADDRESS1']] = ''
 
-            # file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 1)),'sort'] = 2 
+                # file3.loc[file3['sort']==15,config['ADDRESS2']] = ''
 
-            # file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 2)),'sort'] = 3
-
-            # file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 2)),'sort'] = 4
-
-            # file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 3)),'sort'] = 5
-
-            # file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 4)),'sort'] = 6
-
-            # file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 3)),'sort'] = 7
- 
-            # file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 4)),'sort'] = 8
-
-            # file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 5)),'sort'] = 9
-
-            # file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 5)),'sort'] = 10
-
-            # file3.sort_values(['CustomerNumber','sort'],inplace = True,ascending = True)
-
-            # file3.drop_duplicates(['CustomerNumber'],inplace = True)
+                # file3.loc[file3['sort']==15,config['ADDRESS3']] = ''
 
 
 
+                
+                # #Merging all the files
+                # file3.loc[file3['sort']==15,config['ADDRESS4']] = '' 
+
+
+                # CDMS_merged = pd.merge(file1,file2,how = 'left',on = [config['customer_id']])
+                
+                # CDMS_merged = pd.merge(CDMS_merged,file3,how = 'left',on = [config['customer_id']])
+                
+                # CDMS_merged = pd.merge(CDMS_merged,file4,how = 'left',on = [config['customer_id']])
+                
+                # print('missed columns:',set(CDMS_merged) - set(headers.values()))
+                
+                #merging_address
+                
+                
+                
+                CDMS_merged[config['CustomerAddress']] = CDMS_merged[config['ADDRESS1']] + CDMS_merged[config['ADDRESS2']] + CDMS_merged[config['ADDRESS3']] + CDMS_merged[config['ADDRESS4']]
         
-            headers = pd.read_csv('single_header_match.csv')
-            
-            headers = dict(list(zip(headers['key'],headers['value'])))
-            
-            CDMS_merged.rename(columns = headers,inplace = True)
-
-            # file1.rename(columns = headers,inplace = True)
-            
-            # file2.rename(columns = headers,inplace = True)
-            
-            # file3.rename(columns = headers,inplace = True)
-            
-            # file4.rename(columns = headers,inplace = True)
+                #Columns rename
                 
-            
-
-            # file3.loc[file3['sort']==15,config['ADDRESS1']] = ''
-
-            # file3.loc[file3['sort']==15,config['ADDRESS2']] = ''
-
-            # file3.loc[file3['sort']==15,config['ADDRESS3']] = ''
-
-
-
-            
-            # #Merging all the files
-            # file3.loc[file3['sort']==15,config['ADDRESS4']] = '' 
-
-
-            # CDMS_merged = pd.merge(file1,file2,how = 'left',on = [config['customer_id']])
-            
-            # CDMS_merged = pd.merge(CDMS_merged,file3,how = 'left',on = [config['customer_id']])
-            
-            # CDMS_merged = pd.merge(CDMS_merged,file4,how = 'left',on = [config['customer_id']])
-            
-            # print('missed columns:',set(CDMS_merged) - set(headers.values()))
-            
-            #merging_address
-            
-            
-            
-            CDMS_merged[config['CustomerAddress']] = CDMS_merged[config['ADDRESS1']] + CDMS_merged[config['ADDRESS2']] + CDMS_merged[config['ADDRESS3']] + CDMS_merged[config['ADDRESS4']]
-    
-            #Columns rename
-            
-            # renaming_columns = dict(list(zip(config['columns_present'].split(','),config['columns_to_be_changed'].split(','))))
-            
-            # CDMS_merged.rename(columns = renaming_columns,inplace = True)
-            
-            # print(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with']+"//CDMS_output.csv"))
-            
-            #Creating Hash Code function
-            
-            
-            CDMS_merged_HASH_1 = pd.DataFrame()
-            
-            CDMS_merged_HASH_2 = pd.DataFrame()
-            
-            # hash(CDMS_merged,CDMS_merged_HASH_1,config['HASH_1_columns'].split(','))
-            
-            # CDMS_output = pd.concat([CDMS_merged,CDMS_merged_HASH_1],axis = 1)
-            
-            # CDMS_output.rename(columns = {'hash_'+''.join(config['HASH_1_columns'].split(',')):'HASH_1'},inplace = True)
-            
-            # hash(CDMS_merged,CDMS_merged_HASH_2,config['HASH_2_columns'].split(','))
-            
-            # CDMS_output = pd.concat([CDMS_output,CDMS_merged_HASH_2],axis = 1)
-            
-            # CDMS_output.rename(columns = {'hash_'+''.join(config['HASH_2_columns'].split(',')):'HASH_2'},inplace = True)
-            
-            # CDMS_output = CDMS_output[config['output_columns'].split(',')]
-            
-            CDMS_output = CDMS_merged.copy()
-            
-#            print(i.replace(config['replace_string'],config['replace_with'])+"//CDMS_output.csv")
-            
-            if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])):
+                # renaming_columns = dict(list(zip(config['columns_present'].split(','),config['columns_to_be_changed'].split(','))))
                 
-                pass
-            
-            else:
+                # CDMS_merged.rename(columns = renaming_columns,inplace = True)
                 
-                os.makedirs(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with']))
-    
-    
-    
-    
-            
-            # CDMS_output.to_csv(i.replace(config['replace_string'],config['replace_with'])+"//CDMS_output.csv",index = False)
-            
-            
-    
-            
-            # print(business.loc[i,'File Name'])
-            
-            df = CDMS_output.copy()
-            
-            # print(df[df['CUSTOMER_ID']==26536694]['LASTNAME'])
-            
-            errored_headers = ['EMAIL','LANDLINE_NO','EXPIRYDATE','LOAD_DT','ISSUEDATE','DATEOFBIRTH']
-            
-            
-            print('Input file Length')
-            
-            print(len(df))
-            
-            
-            
-            #rule1 upper case and accent change
-            
-            
-            
-            df[config['FirstName']] = df[config['FirstName']].fillna('')   
-            
-            df[config['LastName']] = df[config['LastName']].fillna('')   
-            
-            df[config['CustomerAddress']] = df[config['CustomerAddress']].fillna('')   
-    
-    
-            
-    
-    
-    
-            
-
-             
-            
-            df[config['FirstName']] = df[config['FirstName']].str.upper()   
-            
-            df[config['LastName']] = df[config['LastName']].str.upper()   
-            
-            df[config['CustomerAddress']] = df[config['CustomerAddress']].str.upper()  
-
-            # print(df[df['CUSTOMER_ID']==26536694]['LASTNAME'])
-    
-            #dela cruz
-            
-            last_name_words = config['lastname_words']
-            
-            for words in last_name_words.split(','):
+                # print(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with']+"//CDMS_output.csv"))
                 
-                df[config['FirstName']] = df[config['FirstName']].str.replace(words.upper(),words.upper().replace(' ','-')) 
-    
-                df[config['LastName']] = df[config['LastName']].str.replace(words.upper(),words.upper().replace(' ','-')) 
-    
-            
-            
-            #GYU code
+                #Creating Hash Code function
                 
-            df = df.apply(lambda row:GYU(row),axis = 1)
-            
+                
+                CDMS_merged_HASH_1 = pd.DataFrame()
+                
+                CDMS_merged_HASH_2 = pd.DataFrame()
+                
+                # hash(CDMS_merged,CDMS_merged_HASH_1,config['HASH_1_columns'].split(','))
+                
+                # CDMS_output = pd.concat([CDMS_merged,CDMS_merged_HASH_1],axis = 1)
+                
+                # CDMS_output.rename(columns = {'hash_'+''.join(config['HASH_1_columns'].split(',')):'HASH_1'},inplace = True)
+                
+                # hash(CDMS_merged,CDMS_merged_HASH_2,config['HASH_2_columns'].split(','))
+                
+                # CDMS_output = pd.concat([CDMS_output,CDMS_merged_HASH_2],axis = 1)
+                
+                # CDMS_output.rename(columns = {'hash_'+''.join(config['HASH_2_columns'].split(',')):'HASH_2'},inplace = True)
+                
+                # CDMS_output = CDMS_output[config['output_columns'].split(',')]
+                
+                CDMS_output = CDMS_merged.copy()
+                
+    #            print(i.replace(config['replace_string'],config['replace_with'])+"//CDMS_output.csv")
+                
+                if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])):
                     
-    
-            # print(df[df['CUSTOMER_ID']==26536694]['LASTNAME'])
-            #change_accent
-            
-            for column in df.columns:
+                    pass
                 
-                df[column] = df[column].astype(str)
-                
-                df[column] = df[column].apply(lambda x: unidecode(str(x)) if pd.notnull(x) else x)
-                
-                df[column] = df[column].str.replace(',',';')
-                
-            # print(df[df['CUSTOMER_ID']=='26536694']['LASTNAME'])
-            
-            
-            df = df.apply(lambda row:change_accent(row),axis = 1)
-            
-            # print(df[df['CUSTOMER_ID']=='26536694']['LASTNAME'])
-            #email validation
-            
-            for column in ['EMAIL','LANDLINE_NO']:
-                
-                df[column+'_error'] = df[column].copy()
-                
-                
-            
-            df.loc[~(df['EMAIL'].str.contains(email_regex)),'floki_changes']= 'invalid Email so replaced as null;'
-                        
-            df['EMAIL']= df[df['EMAIL'].str.contains(email_regex, na=False)]['EMAIL']
-            
-            #landline number validation
-            
-            df['LANDLINE_CHECK'] = df['LANDLINE_NO']
-            
-            df['LANDLINE_NO'] = pd.to_numeric(df['LANDLINE_NO'],errors = 'coerce')
-            
-            
-            df.loc[df['LANDLINE_NO'].isna(),'floki_changes'] += 'invalid landline no;'
-
-
-            #date format
-            
-            df.rename(columns = {'EXPIRYDATE_x':'EXPIRYDATE','LOAD_DT_x':'LOAD_DT'},inplace = True)
-                      
-                    
-            for column in ['EXPIRYDATE','LOAD_DT','ISSUEDATE','DATEOFBIRTH']:
-                
-                df[column+'_error'] = df[column].copy()
-
-            
-            
-            df['ISSUEDATE'] = pd.to_datetime(df['ISSUEDATE'],format = '%m/%d/%Y %I:%M:%S %p',errors = 'coerce')
-
-            df['ISSUEDATE'] = df['ISSUEDATE'].dt.strftime('%m/%d/%Y')
-            
-            df['ISSUEDATE'].fillna('',inplace = True)
-
-            df['EXPIRYDATE'] = pd.to_datetime(df['EXPIRYDATE'],format = '%m/%d/%Y %I:%M:%S %p',errors = 'coerce')
-
-            df['EXPIRYDATE'] = df['EXPIRYDATE'].dt.strftime('%m/%d/%Y')
-            
-            df['EXPIRYDATE'].fillna('',inplace = True)
-
-            df['DATEOFBIRTH'] = pd.to_datetime(df['DATEOFBIRTH'],format = '%m/%d/%Y %I:%M:%S %p',errors = 'coerce')
-
-            df['DATEOFBIRTH'] = df['DATEOFBIRTH'].dt.strftime('%m/%d/%Y')
-            
-            df['DATEOFBIRTH'].fillna('',inplace = True)
-
-            df['LOAD_DT'] = pd.to_datetime(df['LOAD_DT'],format = '%m/%d/%Y %I:%M:%S %p',errors = 'coerce')
-
-            df['LOAD_DT'] = df['LOAD_DT'].dt.strftime('%m/%d/%Y')
-            
-            df['LOAD_DT'].fillna('',inplace = True)
-
-            df.loc[df['ISSUEDATE']=='','floki_changes']+='issuedate not in format or empty;'
-
-            df.loc[df['EXPIRYDATE']=='','floki_changes']+='expiry date not in format or empty;'
-
-            df.loc[df['DATEOFBIRTH']=='','floki_changes']+='DOB not in format or empty;'
-
-            df.loc[df['LOAD_DT']=='','floki_changes']+='LOAD_DT not in format or empty;'
-
-                        
-
-
-
-            # df['ISSUEDATE'] = pd.to_datetime(df['ISSUEDATE'],format = '%m/%d/%Y %I:%M:%S %p')
-
-
-
-
-            #adding suffix
-            
-            
-            
-            
-            suffixes = [ ' I', ' II', ' III', ' IV', ' V', ' JR', ' SR']    
-            
-            df['SUFFIX'] = ''
-            
-            for suffix in suffixes:
-                
-                df.loc[df[config['FirstName']].str.contains(suffix),'SUFFIX'] = suffix 
-            
-                df[config['FirstName']]=  df[config['FirstName']].str.replace(suffix,'')
-            
-                df.loc[df[config['LastName']].str.contains(suffix),'SUFFIX'] = suffix 
-            
-                df[config['LastName']] = df[config['LastName']].str.replace(suffix,'')
-            
-            # corporate customers
-            
-            print('corporate customers')
-            
-            corp_name_pattern = ['ACADEMY ', ' ACADEMY', 'TECHNOLOGY ', ' TECHNOLOGY', 'TECHNO ', ' TECHNO', 'STALL ', ' STALL', 'SERVICES ', ' SERVICES', 'BRANCH ', ' BRANCH', 'OUTLET ', ' OUTLET', 'EXPRESS ', ' EXPRESS', 'CENTER ', ' CENTER', 'BUSINESS ', ' BUSINESS', 'CORPORATION ', ' CORPORATION', 'COMPANY ', ' COMPANY', ' INC ', '  INC', 'INC  ', ' INC ', 'COURIER ', ' COURIER', 'COOPERATIVE ', ' COOPERATIVE', 'BANK ', ' BANK', 'SECURITY ', ' SECURITY', 'DISTRIBUTOR ', ' DISTRIBUTOR', 'DISTILLERS ', ' DISTILLERS', 'PHARMACY ', ' PHARMACY', 'MOTORS ', ' MOTORS', 'SCHOOL ', ' SCHOOL', 'TRADEING ', ' TRADEING', 'ACCOUNTS ', ' ACCOUNTS', 'ASSOCIATION ', ' ASSOCIATION', 'UNIV ', ' UNIV', 'COLLEGES ', ' COLLEGES', 'MERCHANT/MERCHANDIZING ', ' MERCHANT/MERCHANDIZING', 'STORE ', ' STORE', 'PHILS ', ' PHILS', 'INSTITUTE ', ' INSTITUTE', 'LIMITED ', ' LIMITED', 'ENTERPRISES ', ' ENTERPRISES', 'VENTURES ', ' VENTURES', 'SHOP ', ' SHOP', 'BOUTIQUE ', ' BOUTIQUE', 'CLINIC ', ' CLINIC', 'HOSPITAL ', ' HOSPITAL', 'FINANCIAL ', ' FINANCIAL', 'PETROL ', ' PETROL', 'GASSTATION ', ' GASSTATION', 'FUEL ', ' FUEL', 'DRUG ', ' DRUG', 'TRAVEL ', ' TRAVEL', 'TOURS ', ' TOURS', 'TOURISM ', ' TOURISM', 'RESTAURANT ', ' RESTAURANT', 'LTD ', ' LTD', 'FINANCE ', ' FINANCE', 'REGION ', ' REGION', 'MARKETING ', ' MARKETING', 'DOLE NCR ', ' DOLE NCR', 'FOOD ', ' FOOD', 'BAKERY ', ' BAKERY', 'CONSTRUCTION ', ' CONSTRUCTION', 'BUILDERS ', ' BUILDERS', 'SUPPLY MATERIALS ', ' SUPPLY MATERIALS', 'JEWELRY ', ' JEWELRY', 'JEWELERS ', ' JEWELERS', 'EDUCATIONAL ', ' EDUCATIONAL', 'AUTO ', ' AUTO', 'MOTORCYCLE ', ' MOTORCYCLE', 'PARTS ', ' PARTS', 'INSURANCE ', ' INSURANCE', 'HEALTH ', ' HEALTH', 'WELLNESS ', ' WELLNESS', 'REALESTATE ', ' REALESTATE', 'PROPERTIES ', ' PROPERTIES']
-            
-            df['CORPORATE'] = False
-            
-            for corporate_key in corp_name_pattern:
-                
-                df_temp = df[df['CORPORATE']==False]
-                
-                df = df[df['CORPORATE']==True]
-                        
-                df_temp['CORPORATE'] = df_temp[config['FirstName']].str.contains(corporate_key)
-                
-                df = pd.concat([df,df_temp],axis = 0)        
-                
-                df_temp = df[df['CORPORATE']==False]
-                
-                df = df[df['CORPORATE']==True]
-                
-                df_temp['CORPORATE'] = df_temp[config['LastName']].str.contains(corporate_key)
-                
-                df = pd.concat([df,df_temp],axis = 0)        
-                
-            df['valid'] = 'valid'
-            
-            df['reason'] = ''
-            
-            #using branch codes
-            
-            branch_codes = pd.read_excel('branch_code.xlsx',engine = 'openpyxl')
-            
-            branch_codes1 = dict(list(zip(branch_codes['PEPP Code'],branch_codes['Partner Name'])))
-            
-            df['some'] = ''
-    
-            df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'CORPORATE'] = True
-            
-            df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'some'] = df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'BRANCHCODE']
-            
-            df['some'] = df['some'].replace(branch_codes1)
-            
-            df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),config['LastName']] = df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'some']
-            
-            df.drop(columns = ['some'],inplace = True)
-            
-            corporate_customers = df[df['CORPORATE'] == True]
-            
-            df = df[df['CORPORATE']==False]
-            
-            #single character
-            
-            
-            
-            
-            # df['count'] = df[config['FirstName']].str.len()
-            
-            # df_temp = df[df['count']<2]
-            
-            # df = df[df['count']>=2]
-            
-            # temp_split = df_temp[config['LastName']].str.split(' ')
-            
-            # df_temp = pd.concat([df_temp,temp_split],axis = 1)
-            
-            # valid_count = 0
-            
-            # invalid_count = 0
-            
-            print(time.time() - start_time)
-            
-            
-            # while(True):
-            
-            
-            
-            print()
-            
-            print('single character check')
-            
-            
-            df = df.apply(lambda row:single_character_check_firstname(row),axis = 1)
-            
-            print('first name completed')
-            
-            # df = df[0:10]
-            
-            
-            
-            df = df.apply(lambda row:single_character_check_lastname(row),axis = 1)
-            
-            print()
-            
-            print('numeric character check')
-            
-            df = df.apply(lambda row:number_check_firstname(row),axis = 1)
-            
-            df = df.apply(lambda row:number_check_lastname(row),axis = 1)
-            
-#            print(df['valid'])
-            
-    
-            print('contact details check')
-            
-            df['length'] = df['CONTACT_DETAILS'].str.len()
-            
-            # df.loc[(df['length']==10) & (df['CONTACT_DETAILS'])]
-            
-            df['CONTACT_DETAILS'].fillna('',inplace = True)
-            
-#            df_valid = ((df['CONTACT_DETAILS'].str.len()==10) & (df['CONTACT_DETAILS'].str.startswith('9')) | ((df['CONTACT_DETAILS'].str.len()==11) & (df['CONTACT_DETAILS'].str.startswith('0'))) | ((df['CONTACT_DETAILS'].str.len()==12) & (df['CONTACT_DETAILS'].str.startswith('6'))) | (df['CONTACT_DETAILS']==''))
-            
-#            df_invalid_phone = ~((df['CONTACT_DETAILS'].str.len()==10) & (df['CONTACT_DETAILS'].str.startswith('9')) | ((df['CONTACT_DETAILS'].str.len()==11) & (df['CONTACT_DETAILS'].str.startswith('0'))) | ((df['CONTACT_DETAILS'].str.len()==12) & (df['CONTACT_DETAILS'].str.startswith('6'))) | (df['CONTACT_DETAILS']==''))
-            
-            # df.loc[df_valid,'valid'] = 'valid'
-            
-#            df.loc[df_invalid_phone,'valid'] = 'invalid'
-    
-#            df.loc[df_invalid_phone,'reason'] = 'phone number is invalid'
-            
-            # print(df[df['CONTACT_DETAILS']=='0']['valid'].unique())             
-    
-            # print()    
-            
-#            print(df['valid'])
-            
-            
-            print('special character check')
-#            print(df['valid'])
-#            df['CUSTOMER_ID'] = df['CUSTOMER_ID'].astype(str)
-
-#            df = df[df['CUSTOMER_ID']=='7734889']
-
-            df['PHONE_ERROR_FORMAT'] = ''
-            
-            # df = df.apply(lambda row:check_phonenumber_format(row),axis = 1)
-            df['CONTACT_DETAILS'] = df['CONTACT_DETAILS'].astype(str).apply(lambda x: x[:-2] if x.endswith('.0') else x)
-            df['CONTACT_DETAILS'] = df['CONTACT_DETAILS'].apply(add_country_code)
-            df['CONTACT_DETAILS'] = df['CONTACT_DETAILS'].apply(add_country_code1)
-            df['CONTACT_DETAILS'] = df['CONTACT_DETAILS'].apply(add_country_code2)
-            
-            df = df.apply(lambda row:special_character_check_firstname(row),axis = 1)
-            
-            df = df.apply(lambda row:special_character_check_lastname(row),axis = 1)
-            
-#            print(df['valid'])
-
-                
-                # if ((valid_count == df['valid'].value_counts()['valid']) and (invalid_count == df['valid'].value_counts()['invalid'])):
-                    
-                #     break
-    
-                # else:
-                    
-                #     valid_count = df['valid'].value_counts()['valid']
-                    
-                #     invalid_count = df['valid'].value_counts()['invalid']
-                    
-            print(time.time() - start_time)
-
-                
-            
-            missing_columns = set(config['HASH_1_columns'].split(',')) - set(df.columns)
-            
-            for xy in missing_columns:
-                
-                df[xy] = ''
-            
-            missing_columns = set(config['HASH_2_columns'].split(',')) - set(df.columns)
-            
-            for xy in missing_columns:
-                
-                df[xy] = ''
-            
-            if 'CustomerBirthDate' in df.columns:
-                
-                df['CustomerBirthDate'] = df['CustomerBirthDate'].fillna('')
-            
-            
-            df1 = pd.DataFrame()
-            
-            df2 = pd.DataFrame()
-            
-            
-            print('Hash code generation started')
-            
-            missing_columns = set(config['HASH_1_columns'].split(',')) - set(df.columns)
-            
-            for xy in missing_columns:
-                
-                df[xy] = ''
-    
-            missing_columns = set(config['HASH_2_columns'].split(',')) - set(df.columns)
-            
-            for xy in missing_columns:
-                
-                df[xy] = ''
-                
-            for xy in config['HASH_1_columns'].split(','):
-                
-                df[xy].fillna('',inplace = True)
-                
-            for xy in config['HASH_2_columns'].split(','):
-                
-                df[xy].fillna('',inplace = True)
-    
-    
-            
-            df = df.apply(lambda row:hash(row,config['HASH_1_columns'].split(','),'HASH_1'),axis = 1)
-            
-            df = df.apply(lambda row:hash(row,config['HASH_2_columns'].split(','),'HASH_2'),axis = 1)
-
-            #print(df[df['CONTACT_DETAILS']=='0']['valid'].unique())             
-
-            
-
-            # total_dataframe  = pd.concat([total_dataframe,df],axis = 0)
-            
-            # print(len(total_dataframe))
-            
-            final_df = df.copy()
-
-            
-            
-
-                
-            count = count+1
-                
-
-            # final_df = total_dataframe.copy()
-            
-            final_df_duplicates1 = final_df[final_df.duplicated(['HASH_1'])]
-            
-            final_df = final_df[~(final_df.duplicated(['HASH_1']))]
-            
-            final_df_duplicates2 = final_df[final_df.duplicated(['HASH_2'])]
-            
-            final_df = final_df[~(final_df.duplicated(['HASH_2']))]
-            
-            final_df_duplicates = pd.concat([final_df_duplicates1,final_df_duplicates2],axis = 0)                    
-            
-            final_df_duplicates['valid'] = 'invalid'
-
-#            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
-
-                
-            # final_df_duplicates['reason'] +=',' 
-            
-            final_df_duplicates.loc[final_df_duplicates['reason']=='','reason'] = 'duplicates in raw data'
-            
-            final_df_duplicates.loc[final_df_duplicates['reason']!='','reason'] += 'duplicates in raw data'
-            
-#            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
-            
-            #mis spelling logic
-            print('mis spelling logic')
-            
-            mis_spelled = final_df[((final_df.duplicated(keep='first',subset = [config['LastName'],config['CustomerAddress'],config['CustomerDOB']])) | (final_df.duplicated(keep='last',subset = [config['LastName'],config['CustomerAddress'],config['CustomerDOB']])))]
-            
-            mis_spelled_unique = mis_spelled[~(mis_spelled.duplicated([config['LastName'],config['CustomerAddress'],config['CustomerDOB']]))]
-            
-            final_df = final_df[~((final_df.duplicated(keep='first',subset = [config['LastName'],config['CustomerAddress'],config['CustomerDOB']])) | (final_df.duplicated(keep='last',subset = [config['LastName'],config['CustomerAddress'],config['CustomerDOB']])))]
-            
-            mis_spelled_duplicates_final = pd.DataFrame()
-            
-            mis_spelled_unique.reset_index(inplace = True,drop = True)
-            
-            for xy in range(0,len(mis_spelled_unique)):
-                
-                lastname = mis_spelled_unique.loc[xy,config['LastName']]
-            
-                address = mis_spelled_unique.loc[xy,config['CustomerAddress']]
-            
-                dob = mis_spelled_unique.loc[xy,config['CustomerDOB']]
-            
-                temp_df = mis_spelled[((mis_spelled[config['LastName']]==lastname) & (mis_spelled[config['CustomerAddress']]==address) & (mis_spelled[config['CustomerDOB']]==dob))]
-            
-                identical = identify_misspelled_names(list(temp_df[config['FirstName']]))
-                
-                if len(identical)>0:
-                    
-                    set1 = set(list(temp_df[config['FirstName']]))
-                
-                    final_set = list(set1 - set(identical))
-                    
-                    final_set.append(identical[0])
-            
-                    final_df = pd.concat([final_df,mis_spelled[mis_spelled[config['FirstName']].isin(final_set)]],axis= 0)
-            
-                    final_set = identical[1:]
-            
-                    mis_spelled_duplicates = mis_spelled[mis_spelled[config['FirstName']].isin(final_set)]
-                    
-                    mis_spelled_duplicates_final = pd.concat([mis_spelled_duplicates_final,mis_spelled_duplicates],axis = 0)
-                    
                 else:
                     
-                    final_df = pd.concat([final_df,temp_df],axis = 0)
-            
+                    os.makedirs(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with']))
+        
+        
+        
+        
                 
-            mis_spelled_duplicates_final['valid'] = 'invalid'
-            
-            mis_spelled_duplicates_final['reason'] = 'duplicates by mis-spelling logic'
-            
-            # final_df_duplicates = final_df[final_df.duplicated(['HASH_2'])]
-            
-            # final_df = final_df[~(final_df.duplicated(['HASH_2']))]
-            
-            # final_df_duplicates['valid'] = 'invalid'
+                # CDMS_output.to_csv(i.replace(config['replace_string'],config['replace_with'])+"//CDMS_output.csv",index = False)
                 
-            # # final_df_duplicates['reason'] +=',' 
-            
-            # final_df_duplicates.loc[final_df_duplicates['reason']=='','reason'] = 'duplicates in raw data'
-            
-            # final_df_duplicates.loc[final_df_duplicates['reason']!='','reason'] += 'duplicates in raw data'
-            
-            
-            # cdms = pd.read_csv('CDMS_merged.csv')
-            
-            
-            
-            
-#            hashcode chcek API
+                
+        
+                
+                # print(business.loc[i,'File Name'])
+                
+                df = CDMS_output.copy()
+                
+                # print(df[df['CUSTOMER_ID']==26536694]['LASTNAME'])
+                
+                errored_headers = ['EMAIL','LANDLINE_NO','EXPIRYDATE','LOAD_DT','ISSUEDATE','DATEOFBIRTH']
+                
+                
+                print('Input file Length')
+                
+                print(len(df))
+                
+                
+                
+                #rule1 upper case and accent change
+                
+                
+                
+                df[config['FirstName']] = df[config['FirstName']].fillna('')   
+                
+                df[config['LastName']] = df[config['LastName']].fillna('')   
+                
+                df[config['CustomerAddress']] = df[config['CustomerAddress']].fillna('')   
+        
+        
+                
+        
+        
+        
+                
 
-            # print(time.time() - start_time)
-                        
-            # print(hello)
-                        
-            # duplicate_hash_df = pd.DataFrame()
-            
-            # duplicate_hash_list = []
-            
-            # for xy in range(0,(len(final_df)//500)):
                 
-            #     hash_codes = final_df['HASH_1'][(xy*500):((xy*500)+500)]
-            
-            #     body = {"hashCodes":list(hash_codes)}
-            
-            #     response = requests.post(url = 'http://mr403s0332d.palawangroup.com:4200/getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':'eyJ1c2VybmFtZSI6InN5c3RlbSIsInRva2VuIjoiODRjOWZmNmQtZTllMy00MWUwLWI0MDctZmY5ZGQ5YjFmYWU4In0=','Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
-            
-            #     duplicate_hashcodes = response.json()     
                 
-            #     print()
+                df[config['FirstName']] = df[config['FirstName']].str.upper()   
+                
+                df[config['LastName']] = df[config['LastName']].str.upper()   
+                
+                df[config['CustomerAddress']] = df[config['CustomerAddress']].str.upper()  
+
+                # print(df[df['CUSTOMER_ID']==26536694]['LASTNAME'])
+        
+                #dela cruz
+                
+                last_name_words = config['lastname_words']
+                
+                for words in last_name_words.split(','):
                     
-            #     print(response.status_code)
-            
+                    df[config['FirstName']] = df[config['FirstName']].str.replace(words.upper(),words.upper().replace(' ','-')) 
+        
+                    df[config['LastName']] = df[config['LastName']].str.replace(words.upper(),words.upper().replace(' ','-')) 
+        
                 
-            #     # duplicate_hash = final_df[final_df['HASH_1'].isin(duplicate_hashcodes)]
                 
-            #     duplicate_hash_list.extend(duplicate_hashcodes)
+                #GYU code
+                    
+                df = df.apply(lambda row:GYU(row),axis = 1)
                 
-            #     # duplicate_hash_df = pd.concat([duplicate_hash_df,duplicate_hash],axis = 0)
+                        
+        
+                # print(df[df['CUSTOMER_ID']==26536694]['LASTNAME'])
+                #change_accent
                 
-            #     # valid_output = valid_output[~(valid_output['HASH_1'].isin(duplicate_hashcodes))]
-            
-            
-            
-            # hash_codes = final_df[(len(final_df)//500)*500:]
-            
-            # body = {"hashCodes":list(hash_codes)}
-            
-            # response = requests.post(url = 'http://mr403s0332d.palawangroup.com:4200/getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':'eyJ1c2VybmFtZSI6InN5c3RlbSIsInRva2VuIjoiODRjOWZmNmQtZTllMy00MWUwLWI0MDctZmY5ZGQ5YjFmYWU4In0=','Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
-            
-            # duplicate_hashcodes = response.json()        
-            
-            # duplicate_hash_list.extend(duplicate_hashcodes)
-            
-            # duplicate_hash = final_df[final_df['HASH_1'].isin(duplicate_hashcodes)]
-            
-            # final_df = final_df[~(final_df['HASH_1'].isin(duplicate_hashcodes))]
-            
-            # duplicate_hash_df = pd.concat([duplicate_hash_df,duplicate_hash],axis = 0)
-            
-            # # valid_output = final_df[~(valid_output['HASH_1'].isin(duplicate_hashcodes))]
-            
-            
-            duplicate_hash_list = []
-            
-            
-            for xy in range(0,(len(final_df)//500)):
+                for column in df.columns:
+                    
+                    df[column] = df[column].astype(str)
+                    
+                    df[column] = df[column].apply(lambda x: unidecode(str(x)) if pd.notnull(x) else x)
+                    
+                    df[column] = df[column].str.replace(',',';')
+                    
+                # print(df[df['CUSTOMER_ID']=='26536694']['LASTNAME'])
                 
-                hash_codes = final_df['HASH_2'][(xy*500):((xy*500)+500)]
-            
-                body = {"hashCodes":list(hash_codes)}
-            
-                response = requests.post(url = CDMS_properties['main_app']+'getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
-            
-                duplicate_hashcodes = response.json()     
-            
+                
+                df = df.apply(lambda row:change_accent(row),axis = 1)
+                
+                # print(df[df['CUSTOMER_ID']=='26536694']['LASTNAME'])
+                #email validation
+                
+                for column in ['EMAIL','LANDLINE_NO']:
+                    
+                    df[column+'_error'] = df[column].copy()
+                    
+                    
+                
+                df.loc[~(df['EMAIL'].str.contains(email_regex)),'floki_changes']= 'invalid Email so replaced as null;'
+                            
+                df['EMAIL']= df[df['EMAIL'].str.contains(email_regex, na=False)]['EMAIL']
+                
+                #landline number validation
+                
+                df['LANDLINE_CHECK'] = df['LANDLINE_NO']
+                
+                df['LANDLINE_NO'] = pd.to_numeric(df['LANDLINE_NO'],errors = 'coerce')
+                
+                
+                df.loc[df['LANDLINE_NO'].isna(),'floki_changes'] += 'invalid landline no;'
+
+
+                #date format
+                
+                df.rename(columns = {'EXPIRYDATE_x':'EXPIRYDATE','LOAD_DT_x':'LOAD_DT'},inplace = True)
+                        
+                        
+                for column in ['EXPIRYDATE','LOAD_DT','ISSUEDATE','DATEOFBIRTH']:
+                    
+                    df[column+'_error'] = df[column].copy()
+
+                
+                
+                df['ISSUEDATE'] = pd.to_datetime(df['ISSUEDATE'],format = '%m/%d/%Y %I:%M:%S %p',errors = 'coerce')
+
+                df['ISSUEDATE'] = df['ISSUEDATE'].dt.strftime('%m/%d/%Y')
+                
+                df['ISSUEDATE'].fillna('',inplace = True)
+
+                df['EXPIRYDATE'] = pd.to_datetime(df['EXPIRYDATE'],format = '%m/%d/%Y %I:%M:%S %p',errors = 'coerce')
+
+                df['EXPIRYDATE'] = df['EXPIRYDATE'].dt.strftime('%m/%d/%Y')
+                
+                df['EXPIRYDATE'].fillna('',inplace = True)
+
+                df['DATEOFBIRTH'] = pd.to_datetime(df['DATEOFBIRTH'],format = '%m/%d/%Y %I:%M:%S %p',errors = 'coerce')
+
+                df['DATEOFBIRTH'] = df['DATEOFBIRTH'].dt.strftime('%m/%d/%Y')
+                
+                df['DATEOFBIRTH'].fillna('',inplace = True)
+
+                df['LOAD_DT'] = pd.to_datetime(df['LOAD_DT'],format = '%m/%d/%Y %I:%M:%S %p',errors = 'coerce')
+
+                df['LOAD_DT'] = df['LOAD_DT'].dt.strftime('%m/%d/%Y')
+                
+                df['LOAD_DT'].fillna('',inplace = True)
+
+                df.loc[df['ISSUEDATE']=='','floki_changes']+='issuedate not in format or empty;'
+
+                df.loc[df['EXPIRYDATE']=='','floki_changes']+='expiry date not in format or empty;'
+
+                df.loc[df['DATEOFBIRTH']=='','floki_changes']+='DOB not in format or empty;'
+
+                df.loc[df['LOAD_DT']=='','floki_changes']+='LOAD_DT not in format or empty;'
+
+                            
+
+
+
+                # df['ISSUEDATE'] = pd.to_datetime(df['ISSUEDATE'],format = '%m/%d/%Y %I:%M:%S %p')
+
+
+
+
+                #adding suffix
+                
+                
+                
+                
+                suffixes = [ ' I', ' II', ' III', ' IV', ' V', ' JR', ' SR']    
+                
+                df['SUFFIX'] = ''
+                
+                for suffix in suffixes:
+                    
+                    df.loc[df[config['FirstName']].str.contains(suffix),'SUFFIX'] = suffix 
+                
+                    df[config['FirstName']]=  df[config['FirstName']].str.replace(suffix,'')
+                
+                    df.loc[df[config['LastName']].str.contains(suffix),'SUFFIX'] = suffix 
+                
+                    df[config['LastName']] = df[config['LastName']].str.replace(suffix,'')
+                
+                # corporate customers
+                
+                print('corporate customers')
+                
+                corp_name_pattern = ['ACADEMY ', ' ACADEMY', 'TECHNOLOGY ', ' TECHNOLOGY', 'TECHNO ', ' TECHNO', 'STALL ', ' STALL', 'SERVICES ', ' SERVICES', 'BRANCH ', ' BRANCH', 'OUTLET ', ' OUTLET', 'EXPRESS ', ' EXPRESS', 'CENTER ', ' CENTER', 'BUSINESS ', ' BUSINESS', 'CORPORATION ', ' CORPORATION', 'COMPANY ', ' COMPANY', ' INC ', '  INC', 'INC  ', ' INC ', 'COURIER ', ' COURIER', 'COOPERATIVE ', ' COOPERATIVE', 'BANK ', ' BANK', 'SECURITY ', ' SECURITY', 'DISTRIBUTOR ', ' DISTRIBUTOR', 'DISTILLERS ', ' DISTILLERS', 'PHARMACY ', ' PHARMACY', 'MOTORS ', ' MOTORS', 'SCHOOL ', ' SCHOOL', 'TRADEING ', ' TRADEING', 'ACCOUNTS ', ' ACCOUNTS', 'ASSOCIATION ', ' ASSOCIATION', 'UNIV ', ' UNIV', 'COLLEGES ', ' COLLEGES', 'MERCHANT/MERCHANDIZING ', ' MERCHANT/MERCHANDIZING', 'STORE ', ' STORE', 'PHILS ', ' PHILS', 'INSTITUTE ', ' INSTITUTE', 'LIMITED ', ' LIMITED', 'ENTERPRISES ', ' ENTERPRISES', 'VENTURES ', ' VENTURES', 'SHOP ', ' SHOP', 'BOUTIQUE ', ' BOUTIQUE', 'CLINIC ', ' CLINIC', 'HOSPITAL ', ' HOSPITAL', 'FINANCIAL ', ' FINANCIAL', 'PETROL ', ' PETROL', 'GASSTATION ', ' GASSTATION', 'FUEL ', ' FUEL', 'DRUG ', ' DRUG', 'TRAVEL ', ' TRAVEL', 'TOURS ', ' TOURS', 'TOURISM ', ' TOURISM', 'RESTAURANT ', ' RESTAURANT', 'LTD ', ' LTD', 'FINANCE ', ' FINANCE', 'REGION ', ' REGION', 'MARKETING ', ' MARKETING', 'DOLE NCR ', ' DOLE NCR', 'FOOD ', ' FOOD', 'BAKERY ', ' BAKERY', 'CONSTRUCTION ', ' CONSTRUCTION', 'BUILDERS ', ' BUILDERS', 'SUPPLY MATERIALS ', ' SUPPLY MATERIALS', 'JEWELRY ', ' JEWELRY', 'JEWELERS ', ' JEWELERS', 'EDUCATIONAL ', ' EDUCATIONAL', 'AUTO ', ' AUTO', 'MOTORCYCLE ', ' MOTORCYCLE', 'PARTS ', ' PARTS', 'INSURANCE ', ' INSURANCE', 'HEALTH ', ' HEALTH', 'WELLNESS ', ' WELLNESS', 'REALESTATE ', ' REALESTATE', 'PROPERTIES ', ' PROPERTIES']
+                
+                df['CORPORATE'] = False
+                
+                for corporate_key in corp_name_pattern:
+                    
+                    df_temp = df[df['CORPORATE']==False]
+                    
+                    df = df[df['CORPORATE']==True]
+                            
+                    df_temp['CORPORATE'] = df_temp[config['FirstName']].str.contains(corporate_key)
+                    
+                    df = pd.concat([df,df_temp],axis = 0)        
+                    
+                    df_temp = df[df['CORPORATE']==False]
+                    
+                    df = df[df['CORPORATE']==True]
+                    
+                    df_temp['CORPORATE'] = df_temp[config['LastName']].str.contains(corporate_key)
+                    
+                    df = pd.concat([df,df_temp],axis = 0)        
+                    
+                df['valid'] = 'valid'
+                
+                df['reason'] = ''
+                
+                #using branch codes
+                
+                branch_codes = pd.read_excel('branch_code.xlsx',engine = 'openpyxl')
+                
+                branch_codes1 = dict(list(zip(branch_codes['PEPP Code'],branch_codes['Partner Name'])))
+                
+                df['some'] = ''
+        
+                df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'CORPORATE'] = True
+                
+                df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'some'] = df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'BRANCHCODE']
+                
+                df['some'] = df['some'].replace(branch_codes1)
+                
+                df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),config['LastName']] = df.loc[((df['CORPORATE']=='False') & (df['BRANCHCODE'].isin(branch_codes['PEPP Code']))),'some']
+                
+                df.drop(columns = ['some'],inplace = True)
+                
+                corporate_customers = df[df['CORPORATE'] == True]
+                
+                df = df[df['CORPORATE']==False]
+                
+                #single character
+                
+                
+                
+                
+                # df['count'] = df[config['FirstName']].str.len()
+                
+                # df_temp = df[df['count']<2]
+                
+                # df = df[df['count']>=2]
+                
+                # temp_split = df_temp[config['LastName']].str.split(' ')
+                
+                # df_temp = pd.concat([df_temp,temp_split],axis = 1)
+                
+                # valid_count = 0
+                
+                # invalid_count = 0
+                
+                print(time.time() - start_time)
+                
+                
+                # while(True):
+                
+                
+                
                 print()
-                    
-                print(response.status_code)
                 
-                # duplicate_hash = final_df[final_df['HASH_2'].isin(duplicate_hashcodes)]
-            
-                duplicate_hash_list.extend(duplicate_hashcodes)
-            
+                print('single character check')
+                
+                
+                df = df.apply(lambda row:single_character_check_firstname(row),axis = 1)
+                
+                print('first name completed')
+                
+                # df = df[0:10]
+                
+                
+                
+                df = df.apply(lambda row:single_character_check_lastname(row),axis = 1)
+                
+                print()
+                
+                print('numeric character check')
+                
+                df = df.apply(lambda row:number_check_firstname(row),axis = 1)
+                
+                df = df.apply(lambda row:number_check_lastname(row),axis = 1)
+                
+    #            print(df['valid'])
+                
+        
+                print('contact details check')
+                
+                df['length'] = df['CONTACT_DETAILS'].str.len()
+                
+                # df.loc[(df['length']==10) & (df['CONTACT_DETAILS'])]
+                
+                df['CONTACT_DETAILS'].fillna('',inplace = True)
+                
+    #            df_valid = ((df['CONTACT_DETAILS'].str.len()==10) & (df['CONTACT_DETAILS'].str.startswith('9')) | ((df['CONTACT_DETAILS'].str.len()==11) & (df['CONTACT_DETAILS'].str.startswith('0'))) | ((df['CONTACT_DETAILS'].str.len()==12) & (df['CONTACT_DETAILS'].str.startswith('6'))) | (df['CONTACT_DETAILS']==''))
+                
+    #            df_invalid_phone = ~((df['CONTACT_DETAILS'].str.len()==10) & (df['CONTACT_DETAILS'].str.startswith('9')) | ((df['CONTACT_DETAILS'].str.len()==11) & (df['CONTACT_DETAILS'].str.startswith('0'))) | ((df['CONTACT_DETAILS'].str.len()==12) & (df['CONTACT_DETAILS'].str.startswith('6'))) | (df['CONTACT_DETAILS']==''))
+                
+                # df.loc[df_valid,'valid'] = 'valid'
+                
+    #            df.loc[df_invalid_phone,'valid'] = 'invalid'
+        
+    #            df.loc[df_invalid_phone,'reason'] = 'phone number is invalid'
+                
+                # print(df[df['CONTACT_DETAILS']=='0']['valid'].unique())             
+        
+                # print()    
+                
+    #            print(df['valid'])
+                
+                
+                print('special character check')
+    #            print(df['valid'])
+    #            df['CUSTOMER_ID'] = df['CUSTOMER_ID'].astype(str)
+
+    #            df = df[df['CUSTOMER_ID']=='7734889']
+
+                df['PHONE_ERROR_FORMAT'] = ''
+                
+                # df = df.apply(lambda row:check_phonenumber_format(row),axis = 1)
+                df['CONTACT_DETAILS'] = df['CONTACT_DETAILS'].astype(str).apply(lambda x: x[:-2] if x.endswith('.0') else x)
+                df['CONTACT_DETAILS'] = df['CONTACT_DETAILS'].apply(add_country_code)
+                df['CONTACT_DETAILS'] = df['CONTACT_DETAILS'].apply(add_country_code1)
+                df['CONTACT_DETAILS'] = df['CONTACT_DETAILS'].apply(add_country_code2)
+                
+                df = df.apply(lambda row:special_character_check_firstname(row),axis = 1)
+                
+                df = df.apply(lambda row:special_character_check_lastname(row),axis = 1)
+                
+    #            print(df['valid'])
+
+                    
+                    # if ((valid_count == df['valid'].value_counts()['valid']) and (invalid_count == df['valid'].value_counts()['invalid'])):
+                        
+                    #     break
+        
+                    # else:
+                        
+                    #     valid_count = df['valid'].value_counts()['valid']
+                        
+                    #     invalid_count = df['valid'].value_counts()['invalid']
+                        
+                print(time.time() - start_time)
+
+                    
+                
+                missing_columns = set(config['HASH_1_columns'].split(',')) - set(df.columns)
+                
+                for xy in missing_columns:
+                    
+                    df[xy] = ''
+                
+                missing_columns = set(config['HASH_2_columns'].split(',')) - set(df.columns)
+                
+                for xy in missing_columns:
+                    
+                    df[xy] = ''
+                
+                if 'CustomerBirthDate' in df.columns:
+                    
+                    df['CustomerBirthDate'] = df['CustomerBirthDate'].fillna('')
+                
+                
+                df1 = pd.DataFrame()
+                
+                df2 = pd.DataFrame()
+                
+                
+                print('Hash code generation started')
+                
+                missing_columns = set(config['HASH_1_columns'].split(',')) - set(df.columns)
+                
+                for xy in missing_columns:
+                    
+                    df[xy] = ''
+        
+                missing_columns = set(config['HASH_2_columns'].split(',')) - set(df.columns)
+                
+                for xy in missing_columns:
+                    
+                    df[xy] = ''
+                    
+                for xy in config['HASH_1_columns'].split(','):
+                    
+                    df[xy].fillna('',inplace = True)
+                    
+                for xy in config['HASH_2_columns'].split(','):
+                    
+                    df[xy].fillna('',inplace = True)
+        
+        
+                
+                df = df.apply(lambda row:hash(row,config['HASH_1_columns'].split(','),'HASH_1'),axis = 1)
+                
+                df = df.apply(lambda row:hash(row,config['HASH_2_columns'].split(','),'HASH_2'),axis = 1)
+
+                #print(df[df['CONTACT_DETAILS']=='0']['valid'].unique())             
+
+                
+
+                # total_dataframe  = pd.concat([total_dataframe,df],axis = 0)
+                
+                # print(len(total_dataframe))
+                
+                final_df = df.copy()
+
+                
+                
+
+                    
+                count = count+1
+                    
+
+                # final_df = total_dataframe.copy()
+                
+                final_df_duplicates1 = final_df[final_df.duplicated(['HASH_1'])]
+                
+                final_df = final_df[~(final_df.duplicated(['HASH_1']))]
+                
+                final_df_duplicates2 = final_df[final_df.duplicated(['HASH_2'])]
+                
+                final_df = final_df[~(final_df.duplicated(['HASH_2']))]
+                
+                final_df_duplicates = pd.concat([final_df_duplicates1,final_df_duplicates2],axis = 0)                    
+                
+                final_df_duplicates['valid'] = 'invalid'
+
+    #            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
+
+                    
+                # final_df_duplicates['reason'] +=',' 
+                
+                final_df_duplicates.loc[final_df_duplicates['reason']=='','reason'] = 'duplicates in raw data'
+                
+                final_df_duplicates.loc[final_df_duplicates['reason']!='','reason'] += 'duplicates in raw data'
+                
+    #            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
+                
+                #mis spelling logic
+                print('mis spelling logic')
+                
+                mis_spelled = final_df[((final_df.duplicated(keep='first',subset = [config['LastName'],config['CustomerAddress'],config['CustomerDOB']])) | (final_df.duplicated(keep='last',subset = [config['LastName'],config['CustomerAddress'],config['CustomerDOB']])))]
+                
+                mis_spelled_unique = mis_spelled[~(mis_spelled.duplicated([config['LastName'],config['CustomerAddress'],config['CustomerDOB']]))]
+                
+                final_df = final_df[~((final_df.duplicated(keep='first',subset = [config['LastName'],config['CustomerAddress'],config['CustomerDOB']])) | (final_df.duplicated(keep='last',subset = [config['LastName'],config['CustomerAddress'],config['CustomerDOB']])))]
+                
+                mis_spelled_duplicates_final = pd.DataFrame()
+                
+                mis_spelled_unique.reset_index(inplace = True,drop = True)
+                
+                for xy in range(0,len(mis_spelled_unique)):
+                    
+                    lastname = mis_spelled_unique.loc[xy,config['LastName']]
+                
+                    address = mis_spelled_unique.loc[xy,config['CustomerAddress']]
+                
+                    dob = mis_spelled_unique.loc[xy,config['CustomerDOB']]
+                
+                    temp_df = mis_spelled[((mis_spelled[config['LastName']]==lastname) & (mis_spelled[config['CustomerAddress']]==address) & (mis_spelled[config['CustomerDOB']]==dob))]
+                
+                    identical = identify_misspelled_names(list(temp_df[config['FirstName']]))
+                    
+                    if len(identical)>0:
+                        
+                        set1 = set(list(temp_df[config['FirstName']]))
+                    
+                        final_set = list(set1 - set(identical))
+                        
+                        final_set.append(identical[0])
+                
+                        final_df = pd.concat([final_df,mis_spelled[mis_spelled[config['FirstName']].isin(final_set)]],axis= 0)
+                
+                        final_set = identical[1:]
+                
+                        mis_spelled_duplicates = mis_spelled[mis_spelled[config['FirstName']].isin(final_set)]
+                        
+                        mis_spelled_duplicates_final = pd.concat([mis_spelled_duplicates_final,mis_spelled_duplicates],axis = 0)
+                        
+                    else:
+                        
+                        final_df = pd.concat([final_df,temp_df],axis = 0)
+                
+                    
+                mis_spelled_duplicates_final['valid'] = 'invalid'
+                
+                mis_spelled_duplicates_final['reason'] = 'duplicates by mis-spelling logic'
+                
+                # final_df_duplicates = final_df[final_df.duplicated(['HASH_2'])]
+                
+                # final_df = final_df[~(final_df.duplicated(['HASH_2']))]
+                
+                # final_df_duplicates['valid'] = 'invalid'
+                    
+                # # final_df_duplicates['reason'] +=',' 
+                
+                # final_df_duplicates.loc[final_df_duplicates['reason']=='','reason'] = 'duplicates in raw data'
+                
+                # final_df_duplicates.loc[final_df_duplicates['reason']!='','reason'] += 'duplicates in raw data'
+                
+                
+                # cdms = pd.read_csv('CDMS_merged.csv')
+                
+                
+                
+                
+    #            hashcode chcek API
+
+                # print(time.time() - start_time)
+                            
+                # print(hello)
+                            
+                # duplicate_hash_df = pd.DataFrame()
+                
+                # duplicate_hash_list = []
+                
+                # for xy in range(0,(len(final_df)//500)):
+                    
+                #     hash_codes = final_df['HASH_1'][(xy*500):((xy*500)+500)]
+                
+                #     body = {"hashCodes":list(hash_codes)}
+                
+                #     response = requests.post(url = 'http://mr403s0332d.palawangroup.com:4200/getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':'eyJ1c2VybmFtZSI6InN5c3RlbSIsInRva2VuIjoiODRjOWZmNmQtZTllMy00MWUwLWI0MDctZmY5ZGQ5YjFmYWU4In0=','Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
+                
+                #     duplicate_hashcodes = response.json()     
+                    
+                #     print()
+                        
+                #     print(response.status_code)
+                
+                    
+                #     # duplicate_hash = final_df[final_df['HASH_1'].isin(duplicate_hashcodes)]
+                    
+                #     duplicate_hash_list.extend(duplicate_hashcodes)
+                    
+                #     # duplicate_hash_df = pd.concat([duplicate_hash_df,duplicate_hash],axis = 0)
+                    
+                #     # valid_output = valid_output[~(valid_output['HASH_1'].isin(duplicate_hashcodes))]
+                
+                
+                
+                # hash_codes = final_df[(len(final_df)//500)*500:]
+                
+                # body = {"hashCodes":list(hash_codes)}
+                
+                # response = requests.post(url = 'http://mr403s0332d.palawangroup.com:4200/getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':'eyJ1c2VybmFtZSI6InN5c3RlbSIsInRva2VuIjoiODRjOWZmNmQtZTllMy00MWUwLWI0MDctZmY5ZGQ5YjFmYWU4In0=','Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
+                
+                # duplicate_hashcodes = response.json()        
+                
+                # duplicate_hash_list.extend(duplicate_hashcodes)
+                
+                # duplicate_hash = final_df[final_df['HASH_1'].isin(duplicate_hashcodes)]
+                
+                # final_df = final_df[~(final_df['HASH_1'].isin(duplicate_hashcodes))]
                 
                 # duplicate_hash_df = pd.concat([duplicate_hash_df,duplicate_hash],axis = 0)
                 
-                # valid_output = valid_output[~(valid_output['HASH_2'].isin(duplicate_hashcodes))]
+                # # valid_output = final_df[~(valid_output['HASH_1'].isin(duplicate_hashcodes))]
                 
                 
-            
-            # hash_codes = final_df[(len(final_df)//500)*500:]
-            
-            # body = {"hashCodes":list(hash_codes)}
-            
-            # response = requests.post(url = 'http://mr403s0332d.palawangroup.com:4200/getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':'eyJ1c2VybmFtZSI6InN5c3RlbSIsInRva2VuIjoiODRjOWZmNmQtZTllMy00MWUwLWI0MDctZmY5ZGQ5YjFmYWU4In0=','Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
-            
-            # duplicate_hashcodes = response.json()  
-            
-            # duplicate_hash_list.extend(duplicate_hashcodes)      
-            
-            # duplicate_hash = final_df[final_df['HASH_2'].isin(duplicate_hash_list)]
-            
-            # duplicate_hash_df = pd.concat([duplicate_hash_df,duplicate_hash],axis = 0)
-            
-            # # valid_output = valid_output[~(valid_output['HASH_2'].isin(duplicate_hashcodes))]
-            
-            # final_df = final_df[~(final_df['HASH_2'].isin(duplicate_hash_list))]
-            
-            # duplicates = duplicate_hash_df.copy()
-            
-            # duplicates['reason'] = 'duplicates identified from system'
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            #completion of API check on hash codes
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            #     # response = requests.post(url = 'http://mr403s0332d.palawangroup.com:4200/fileUploadExternalApi',headers = {'X-AUTH-TOKEN':'eyJ1c2VybmFtZSI6InN5c3RlbSIsInRva2VuIjoiODRjOWZmNmQtZTllMy00MWUwLWI0MDctZmY5ZGQ5YjFmYWU4In0=','Content-Type':'application/json'},json = body)
-            
-            
-            # duplicates.to_csv('invalid//duplicates_'+business.loc[i,'File Name'],index  = False)
-            
-            invalid_records = final_df[final_df['valid']=='invalid']
-            
-            final_df = final_df[final_df['valid']=='valid']  
-            
-#            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
-            
-            if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid"):
-                
-                pass
-            
-            else:
-                
-                os.makedirs(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid")
-            
-            if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid"):
-                
-                pass
-            
-            else:
-                
-                os.makedirs(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid")
+                duplicate_hash_list = []
                 
                 
-            if ('Remarks_y' in final_df.columns):
+                for xy in range(0,(len(final_df)//500)):
+                    
+                    hash_codes = final_df['HASH_2'][(xy*500):((xy*500)+500)]
                 
-                pass
-            
-            else:
+                    body = {"hashCodes":list(hash_codes)}
+                
+                    response = requests.post(url = CDMS_properties['main_app']+'getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
+                
+                    duplicate_hashcodes = response.json()     
+                
+                    print()
+                        
+                    # print(response.status_code)
+                    
+                    # duplicate_hash = final_df[final_df['HASH_2'].isin(duplicate_hashcodes)]
+                
+                    duplicate_hash_list.extend(duplicate_hashcodes)
+                
+                    
+                    # duplicate_hash_df = pd.concat([duplicate_hash_df,duplicate_hash],axis = 0)
+                    
+                    # valid_output = valid_output[~(valid_output['HASH_2'].isin(duplicate_hashcodes))]
+                    
+                    
+                
+                # hash_codes = final_df[(len(final_df)//500)*500:]
+                
+                # body = {"hashCodes":list(hash_codes)}
+                
+                # response = requests.post(url = 'http://mr403s0332d.palawangroup.com:4200/getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':'eyJ1c2VybmFtZSI6InN5c3RlbSIsInRva2VuIjoiODRjOWZmNmQtZTllMy00MWUwLWI0MDctZmY5ZGQ5YjFmYWU4In0=','Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
+                
+                # duplicate_hashcodes = response.json()  
+                
+                # duplicate_hash_list.extend(duplicate_hashcodes)      
+                
+                # duplicate_hash = final_df[final_df['HASH_2'].isin(duplicate_hash_list)]
+                
+                # duplicate_hash_df = pd.concat([duplicate_hash_df,duplicate_hash],axis = 0)
+                
+                # # valid_output = valid_output[~(valid_output['HASH_2'].isin(duplicate_hashcodes))]
+                
+                # final_df = final_df[~(final_df['HASH_2'].isin(duplicate_hash_list))]
+                
+                # duplicates = duplicate_hash_df.copy()
+                
+                # duplicates['reason'] = 'duplicates identified from system'
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                #completion of API check on hash codes
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                #     # response = requests.post(url = 'http://mr403s0332d.palawangroup.com:4200/fileUploadExternalApi',headers = {'X-AUTH-TOKEN':'eyJ1c2VybmFtZSI6InN5c3RlbSIsInRva2VuIjoiODRjOWZmNmQtZTllMy00MWUwLWI0MDctZmY5ZGQ5YjFmYWU4In0=','Content-Type':'application/json'},json = body)
+                
+                
+                # duplicates.to_csv('invalid//duplicates_'+business.loc[i,'File Name'],index  = False)
+                
+                invalid_records = final_df[final_df['valid']=='invalid']
+                
+                final_df = final_df[final_df['valid']=='valid']  
+                
+    #            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
+                
+                if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid"):
+                    
+                    pass
+                
+                else:
+                    
+                    os.makedirs(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid")
+                
+                if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid"):
+                    
+                    pass
+                
+                else:
+                    
+                    os.makedirs(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid")
+                    
+                    
+                if ('Remarks_y' in final_df.columns):
+                    
+                    pass
+                
+                else:
+                    
+                    final_df['Remarks_y'] = ''
+                
+                
+                final_df.fillna('',inplace = True)
+                
+                final_df.replace('none','')
+                
+                # final_df['CONTACT_DETAILS'] = final_df[]
+                
+                final_df.rename(columns = {'EXPIRYDATE_x':'EXPIRYDATE','LOAD_DT_x':'LOAD_DT'},inplace = True)
+                
+                final_df['PRIMARYIDTYPE'] = ''
+                
+                final_df['PRIMARYID'] = ''
+                
+    #            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
+                
+                
+                headers_final = list(headers.values())
+                
+                headers_final.append('HASH_1')
+                
+                headers_final.append('HASH_2')
+                
+                
+                final_df.fillna('',inplace = True)
+                
+                
+    #            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
+                
+                
+                final_df.fillna('',inplace = True)
+                
+                final_df = final_df.replace('NONE','')
+                    
+                # final_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv",index  = False)
+                
+                
+                # final_df = pd.read_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv")
+                
+                
+                
+                
+                final_df.fillna('',inplace = True)
+                
+                errored_df = final_df[(((final_df['EMAIL']=='') & (final_df['EMAIL_error']!='')) | ((final_df['LANDLINE_NO']=='') & (final_df['LANDLINE_NO_error']!='')) | ((final_df['EXPIRYDATE']=='') & (final_df['EXPIRYDATE_error']!='')) | ((final_df['LOAD_DT']=='') & (final_df['LOAD_DT_error']!='')) |((final_df['DATEOFBIRTH']=='') & (final_df['DATEOFBIRTH_error']!='')))]
+                
+                errored_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//errored_out.csv",index  = False)
+                
+                headers_final.append('CUSTOMERADDRESS')
+                            
+                final_df = final_df[headers_final]
+                
+                
                 
                 final_df['Remarks_y'] = ''
-            
-            
-            final_df.fillna('',inplace = True)
-            
-            final_df.replace('none','')
-            
-            # final_df['CONTACT_DETAILS'] = final_df[]
-            
-            final_df.rename(columns = {'EXPIRYDATE_x':'EXPIRYDATE','LOAD_DT_x':'LOAD_DT'},inplace = True)
-            
-            final_df['PRIMARYIDTYPE'] = ''
-            
-            final_df['PRIMARYID'] = ''
-            
-#            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
-            
-            
-            headers_final = list(headers.values())
-            
-            headers_final.append('HASH_1')
-            
-            headers_final.append('HASH_2')
-            
-            
-            final_df.fillna('',inplace = True)
-            
-            
-#            print(final_df[final_df['CONTACT_DETAILS']=='0']['valid'].unique())             
-            
-            
-            final_df.fillna('',inplace = True)
-            
-            final_df = final_df.replace('NONE','')
                 
-            final_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv",index  = False)
-            
-            
-            final_df = pd.read_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv")
-            
-            
-            
-            
-            final_df.fillna('',inplace = True)
-            
-            errored_df = final_df[(((final_df['EMAIL']=='') & (final_df['EMAIL_error']!='')) | ((final_df['LANDLINE_NO']=='') & (final_df['LANDLINE_NO_error']!='')) | ((final_df['EXPIRYDATE']=='') & (final_df['EXPIRYDATE_error']!='')) | ((final_df['LOAD_DT']=='') & (final_df['LOAD_DT_error']!='')) |((final_df['DATEOFBIRTH']=='') & (final_df['DATEOFBIRTH_error']!='')))]
-            
-            errored_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//errored_out.csv",index  = False)
-            
-            headers_final.append('CUSTOMERADDRESS')
-                        
-            final_df = final_df[headers_final]
-            
-            
-            
-            final_df['Remarks_y'] = ''
-            
-            final_df['ID'] = ''
-            
-            final_df['BIZ_ID'] = ''
-
-            final_df['GEN_ID'] = ''
-
-            final_df['FILE_LOC'] = i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv"
-
-            duplicate_hash = final_df[final_df['HASH_2'].isin(duplicate_hash_list)]
-
-            duplicate_hash.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_update_output.csv",index  = False)
-
-            print(len(duplicate_hash))
-
-            final_df = final_df[~(final_df['HASH_2'].isin(duplicate_hash_list))]
-            
-            final_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv",index  = False)
-            
-            final_count =len(final_df)
-            
-            print(final_count)
-
-            # duplicate_hash.to_csv('invalid//duplicates_'+business.loc[i,'File Name'],index  = False)
-            
-            final_df_duplicates['reason'] = 'duplicates in input'
-            
-            
-            invalid_records = pd.concat([invalid_records,final_df_duplicates],axis = 0)
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            #hashcode API check
-            
-            # invalid_records = pd.concat([invalid_records,duplicates],axis = 0)
-            
-            
-            #hashcode API check
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            invalid_records = pd.concat([invalid_records,mis_spelled_duplicates_final],axis = 0)
-            
-            print(len(invalid_records))
-            
-            invalid_records.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//CDMS_output.csv",index  = False)
-            
-            corporate_customers.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers.csv",index  = False)
-            
-            
-            # print(len(corporate_customers))
-
-            # print(len(final_df))
-
-
-            
-            # print(CDMS_output.columns)
-            
-            body = {
-            
-                "fileName":"CDMS_output.csv",
-            
-                "filePath":i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//",
-            
-                "subListID":76,
-            
-                "userID":149,
-            
-                "businessHierarchyId":23,
-
-                "batchNo":"b1"
-            
-            }
-            
-            
-            response = requests.post(url = CDMS_properties['main_app']+'fileUploadExternalApi',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body)
-
-            upload_id=0         
-
-            if response.status_code == 200:
-                # Parse JSON response
-                response_data = response.json()
-                content = response_data['content']  # Extract the 'content' field from the response
+                final_df['ID'] = ''
                 
-                # Check if content exists and if it has 'uploadId'
-                if content and 'uploadId' in content:
-                    upload_id = content['uploadId']
-                    # print("Upload ID:", upload_id)
+                final_df['BIZ_ID'] = ''
+
+                final_df['GEN_ID'] = ''
+
+                final_df['FILE_LOC'] = i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv"
+
+                duplicate_hash = final_df[final_df['HASH_2'].isin(duplicate_hash_list)]
+
+                duplicate_hash.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_update_output.csv",index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_update_output.csv"))
+
+                print(len(duplicate_hash))
+
+                final_df = final_df[~(final_df['HASH_2'].isin(duplicate_hash_list))]
+                
+                final_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv",index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv"))
+                
+                final_count =len(final_df)
+                
+                print(final_count)
+
+                # duplicate_hash.to_csv('invalid//duplicates_'+business.loc[i,'File Name'],index  = False)
+                
+                final_df_duplicates['reason'] = 'duplicates in input'
+                
+                
+                invalid_records = pd.concat([invalid_records,final_df_duplicates],axis = 0)
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                #hashcode API check
+                
+                # invalid_records = pd.concat([invalid_records,duplicates],axis = 0)
+                
+                
+                #hashcode API check
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                invalid_records = pd.concat([invalid_records,mis_spelled_duplicates_final],axis = 0)
+                
+                print(len(invalid_records))
+                
+                invalid_records.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//CDMS_output.csv",index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//CDMS_output.csv"))
+                
+                corporate_customers.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers.csv",index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers.csv"))
+                
+                
+                # print(len(corporate_customers))
+
+                # print(len(final_df))
+
+
+                
+                # print(CDMS_output.columns)
+                
+                body = {
+                
+                    "fileName":"CDMS_output.csv",
+                
+                    "filePath":i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//",
+                
+                    "subListID":76,
+                
+                    "userID":149,
+                
+                    "businessHierarchyId":23,
+
+                    "batchNo":"b1"
+                
+                }
+                
+                
+                response = requests.post(url = CDMS_properties['main_app']+'fileUploadExternalApi',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body)
+
+                upload_id=0         
+
+                if response.status_code == 200:
+                    # Parse JSON response
+                    response_data = response.json()
+                    content = response_data['content']  # Extract the 'content' field from the response
+                    
+                    # Check if content exists and if it has 'uploadId'
+                    if content and 'uploadId' in content:
+                        upload_id = content['uploadId']
+                        # print("Upload ID:", upload_id)
+                    else:
+                        print("Upload ID not found in the response content.")
                 else:
-                    print("Upload ID not found in the response content.")
-            else:
-                print("Request failed with status code:", response.status_code)
+                    print("Request failed with status code:", response.status_code)
 
-            checker_body = {
-            
-                "fileName":"CDMS_output.csv",
-            
-                "location":i,
-            
-                "status":'Success',
-            
-                "count":final_count,
-            
-                "uploadId":upload_id,
-
-                "processName":process_name,
-
-                "origin":"CDMS",
-            
-                "subListID":76,
-            
-                "userID":149,
-            
-                "businessHierarchyId":23
-            
-            }
-
-            # response = requests.post(url = CDMS_properties['main_app']+'crm/saveDudupStatus',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = checker_body)
-                        
-            # if response.status_code != 200:
-
-            #     print("Save DeDup Request failed with status code:", response.status_code)
-            
-            print("Message sent successfully")
-                                        
-            # with open('response.txt','r') as w:
+                checker_body = {
                 
-            #     text = w.read()
-
-            # with open('response.txt','w') as w:
+                    "fileName":"CDMS_output.csv",
                 
-            #     w.write(text+str(count)+"."+i+"\n")
+                    "location":i,
+                
+                    "status":'Success',
+                
+                    "count":final_count,
+                
+                    "uploadId":upload_id,
+
+                    "processName":process_name,
+
+                    "origin":"CDMS",
+                
+                    "subListID":76,
+                
+                    "userID":149,
+                
+                    "businessHierarchyId":23
+                
+                }
+
+                # response = requests.post(url = CDMS_properties['main_app']+'crm/saveDudupStatus',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = checker_body)
+                            
+                # if response.status_code != 200:
+
+                #     print("Save DeDup Request failed with status code:", response.status_code)
+                
+                print("Message sent successfully")
+                                            
+                # with open('response.txt','r') as w:
+                    
+                #     text = w.read()
+
+                # with open('response.txt','w') as w:
+                    
+                #     w.write(text+str(count)+"."+i+"\n")
                                     
 
                 
