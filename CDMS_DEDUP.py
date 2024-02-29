@@ -254,6 +254,22 @@ def check_phonenumber_format(row):
     					
 	return row
 
+def add_country_code(contact):
+    if contact and contact.startswith('9') and len(contact) == 10:
+        return '+63' + contact
+    return contact
+
+def add_country_code1(contact):
+    if contact and contact.startswith('09') and len(contact) == 11:
+        return '+63' + contact[1:] 
+    return contact
+
+
+def add_country_code2(contact):
+    if contact and contact.startswith('63') and len(contact) == 12:
+        return '+' + contact
+    return contact
+
 def GYU(row):
     
     if 'GYU' in row[config['FirstName']]:
@@ -590,7 +606,7 @@ total_dataframe = pd.DataFrame()
 
 # files_location = files_location[0:1]
 
-# files_location=['C:/Users/cbt/Desktop/python/CDMS/2023-08-02']
+# files_location=['C:/Users/cbt/Desktop/python/newdata']
 
 
 for i in files_location:
@@ -621,92 +637,96 @@ for i in files_location:
 
             # print(url)
 
-            response = requests.get(url=url, params=params, headers=headers)
+            # response = requests.get(url=url, params=params, headers=headers)
             
-            content =False
+            # content =False
 
-            if response.status_code == 200:
-                # Parse JSON response
-                response_data = response.json()
-                content = response_data['content']  # Extract the 'content' field from the response
-                # print("Content:", content)
-            else:
-                print("Request failed with status code:", response.status_code)
+            # if response.status_code == 200:
+            #     # Parse JSON response
+            #     response_data = response.json()
+            #     content = response_data['content']  # Extract the 'content' field from the response
+            #     # print("Content:", content)
+            # else:
+            #     print("Request failed with status code:", response.status_code)
 
-            if not content:
-                continue
+            # if not content:
+            #     continue
             
             # print ('not break')
+
+            CDMS_merged = pd.read_csv(i+"//"+CDMS_properties['cdms_file1'])
             
-            file1 = pd.read_csv(i+"//"+CDMS_properties['cdms_file1'], sep="|")
+            # file1 = pd.read_csv(i+"//"+CDMS_properties['cdms_file1'], sep="|")
             
-            file2 = pd.read_csv(i+'//'+CDMS_properties['cdms_file2'], sep="|")
+            # file2 = pd.read_csv(i+'//'+CDMS_properties['cdms_file2'], sep="|")
             
-            file3 = pd.read_csv(i+"//"+CDMS_properties['cdms_file3'], sep="|")
+            # file3 = pd.read_csv(i+"//"+CDMS_properties['cdms_file3'], sep="|")
             
-            file4 = pd.read_csv(i+'//'+CDMS_properties['cdms_file4'], sep="|")
+            # file4 = pd.read_csv(i+'//'+CDMS_properties['cdms_file4'], sep="|")
 
-            file3['sort'] = 15
+            # file3['sort'] = 15
 
-            file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 1)),'sort'] = 1
+            # file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 1)),'sort'] = 1
 
-            file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 1)),'sort'] = 2 
+            # file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 1)),'sort'] = 2 
 
-            file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 2)),'sort'] = 3
+            # file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 2)),'sort'] = 3
 
-            file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 2)),'sort'] = 4
+            # file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 2)),'sort'] = 4
 
-            file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 3)),'sort'] = 5
+            # file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 3)),'sort'] = 5
 
-            file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 4)),'sort'] = 6
+            # file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 4)),'sort'] = 6
 
-            file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 3)),'sort'] = 7
+            # file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 3)),'sort'] = 7
  
-            file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 4)),'sort'] = 8
+            # file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 4)),'sort'] = 8
 
-            file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 5)),'sort'] = 9
+            # file3.loc[((file3['IsCurrent'] == 1) & (file3['ResidenceType'] == 5)),'sort'] = 9
 
-            file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 5)),'sort'] = 10
+            # file3.loc[((file3['IsCurrent'] == 0) & (file3['ResidenceType'] == 5)),'sort'] = 10
 
-            file3.sort_values(['CustomerNumber','sort'],inplace = True,ascending = True)
+            # file3.sort_values(['CustomerNumber','sort'],inplace = True,ascending = True)
 
-            file3.drop_duplicates(['CustomerNumber'],inplace = True)
+            # file3.drop_duplicates(['CustomerNumber'],inplace = True)
 
 
 
         
-            headers = pd.read_csv('headers_matching.csv')
+            headers = pd.read_csv('single_header_match.csv')
             
             headers = dict(list(zip(headers['key'],headers['value'])))
             
-            file1.rename(columns = headers,inplace = True)
+            CDMS_merged.rename(columns = headers,inplace = True)
+
+            # file1.rename(columns = headers,inplace = True)
             
-            file2.rename(columns = headers,inplace = True)
+            # file2.rename(columns = headers,inplace = True)
             
-            file3.rename(columns = headers,inplace = True)
+            # file3.rename(columns = headers,inplace = True)
             
-            file4.rename(columns = headers,inplace = True)
+            # file4.rename(columns = headers,inplace = True)
                 
             
 
-            file3.loc[file3['sort']==15,config['ADDRESS1']] = ''
+            # file3.loc[file3['sort']==15,config['ADDRESS1']] = ''
 
-            file3.loc[file3['sort']==15,config['ADDRESS2']] = ''
+            # file3.loc[file3['sort']==15,config['ADDRESS2']] = ''
 
-            file3.loc[file3['sort']==15,config['ADDRESS3']] = ''
+            # file3.loc[file3['sort']==15,config['ADDRESS3']] = ''
 
 
 
             
-            #Merging all the files
-            file3.loc[file3['sort']==15,config['ADDRESS4']] = '' 
+            # #Merging all the files
+            # file3.loc[file3['sort']==15,config['ADDRESS4']] = '' 
 
 
-            CDMS_merged = pd.merge(file1,file2,how = 'left',on = [config['customer_id']])
+            # CDMS_merged = pd.merge(file1,file2,how = 'left',on = [config['customer_id']])
             
-            CDMS_merged = pd.merge(CDMS_merged,file3,how = 'left',on = [config['customer_id']])
+            # CDMS_merged = pd.merge(CDMS_merged,file3,how = 'left',on = [config['customer_id']])
             
-            CDMS_merged = pd.merge(CDMS_merged,file4,how = 'left',on = [config['customer_id']])
+            # CDMS_merged = pd.merge(CDMS_merged,file4,how = 'left',on = [config['customer_id']])
             
             # print('missed columns:',set(CDMS_merged) - set(headers.values()))
             
@@ -1073,7 +1093,11 @@ for i in files_location:
 
             df['PHONE_ERROR_FORMAT'] = ''
             
-            df = df.apply(lambda row:check_phonenumber_format(row),axis = 1)
+            # df = df.apply(lambda row:check_phonenumber_format(row),axis = 1)
+            df['CONTACT_DETAILS'] = df['CONTACT_DETAILS'].astype(str).apply(lambda x: x[:-2] if x.endswith('.0') else x)
+            df['CONTACT_DETAILS'] = df['CONTACT_DETAILS'].apply(add_country_code)
+            df['CONTACT_DETAILS'] = df['CONTACT_DETAILS'].apply(add_country_code1)
+            df['CONTACT_DETAILS'] = df['CONTACT_DETAILS'].apply(add_country_code2)
             
             df = df.apply(lambda row:special_character_check_firstname(row),axis = 1)
             
@@ -1310,31 +1334,31 @@ for i in files_location:
             # # valid_output = final_df[~(valid_output['HASH_1'].isin(duplicate_hashcodes))]
             
             
-            # duplicate_hash_list = []
+            duplicate_hash_list = []
             
             
-            # for xy in range(0,(len(final_df)//500)):
+            for xy in range(0,(len(final_df)//500)):
                 
-            #     hash_codes = final_df['HASH_2'][(xy*500):((xy*500)+500)]
+                hash_codes = final_df['HASH_2'][(xy*500):((xy*500)+500)]
             
-            #     body = {"hashCodes":list(hash_codes)}
+                body = {"hashCodes":list(hash_codes)}
             
-            #     response = requests.post(url = 'http://mr403s0332d.palawangroup.com:4200/getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':'eyJ1c2VybmFtZSI6InN5c3RlbSIsInRva2VuIjoiODRjOWZmNmQtZTllMy00MWUwLWI0MDctZmY5ZGQ5YjFmYWU4In0=','Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
+                response = requests.post(url = CDMS_properties['main_app']+'getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
             
-            #     duplicate_hashcodes = response.json()     
+                duplicate_hashcodes = response.json()     
             
-            #     print()
+                print()
                     
-            #     print(response.status_code)
+                print(response.status_code)
                 
-            #     # duplicate_hash = final_df[final_df['HASH_2'].isin(duplicate_hashcodes)]
+                # duplicate_hash = final_df[final_df['HASH_2'].isin(duplicate_hashcodes)]
             
-            #     duplicate_hash_list.extend(duplicate_hashcodes)
+                duplicate_hash_list.extend(duplicate_hashcodes)
             
                 
-            #     # duplicate_hash_df = pd.concat([duplicate_hash_df,duplicate_hash],axis = 0)
+                # duplicate_hash_df = pd.concat([duplicate_hash_df,duplicate_hash],axis = 0)
                 
-            #     # valid_output = valid_output[~(valid_output['HASH_2'].isin(duplicate_hashcodes))]
+                # valid_output = valid_output[~(valid_output['HASH_2'].isin(duplicate_hashcodes))]
                 
                 
             
@@ -1482,12 +1506,20 @@ for i in files_location:
 
             final_df['FILE_LOC'] = i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv"
 
+            duplicate_hash = final_df[final_df['HASH_2'].isin(duplicate_hash_list)]
+
+            duplicate_hash.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_update_output.csv",index  = False)
+
+            print(len(duplicate_hash))
+
+            final_df = final_df[~(final_df['HASH_2'].isin(duplicate_hash_list))]
             
             final_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv",index  = False)
             
             final_count =len(final_df)
             
-            
+            print(final_count)
+
             # duplicate_hash.to_csv('invalid//duplicates_'+business.loc[i,'File Name'],index  = False)
             
             final_df_duplicates['reason'] = 'duplicates in input'
@@ -1595,11 +1627,11 @@ for i in files_location:
             
             }
 
-            response = requests.post(url = CDMS_properties['main_app']+'crm/saveDudupStatus',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = checker_body)
+            # response = requests.post(url = CDMS_properties['main_app']+'crm/saveDudupStatus',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = checker_body)
                         
-            if response.status_code != 200:
+            # if response.status_code != 200:
 
-                print("Save DeDup Request failed with status code:", response.status_code)
+            #     print("Save DeDup Request failed with status code:", response.status_code)
             
             print("Message sent successfully")
                                         
