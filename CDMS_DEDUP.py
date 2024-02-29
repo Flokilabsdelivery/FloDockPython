@@ -606,7 +606,7 @@ total_dataframe = pd.DataFrame()
 
 # files_location = files_location[0:1]
 
-# files_location=['C:/Users/cbt/Desktop/python/newdata']
+# files_location=['/STFS0029M/CDMS/AUG/2023-08-01']
 
 
 for i in files_location:
