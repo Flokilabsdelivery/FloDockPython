@@ -658,7 +658,7 @@ for i in files_location:
 
             total_rows = len(df_)
 
-            chunk_size = 100000 
+            chunk_size = 1000
 
             for j, chunk_df in enumerate(pd.read_csv(i+"//"+CDMS_properties['cdms_file1'], chunksize=chunk_size, low_memory=False)):
 
@@ -1353,7 +1353,7 @@ for i in files_location:
                 
                 for xy in range(0,(len(final_df)//500)):
                     
-                    hash_codes = final_df['HASH_2'][(xy*500):((xy*500)+500)]
+                    hash_codes = final_df['HASH_1'][(xy*500):((xy*500)+500)]
                 
                     body = {"hashCodes":list(hash_codes)}
                 
@@ -1520,13 +1520,13 @@ for i in files_location:
 
                 final_df['FILE_LOC'] = i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv"
 
-                duplicate_hash = final_df[final_df['HASH_2'].isin(duplicate_hash_list)]
+                duplicate_hash = final_df[final_df['HASH_1'].isin(duplicate_hash_list)]
 
                 duplicate_hash.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_update_output.csv",index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_update_output.csv"))
 
                 print(len(duplicate_hash))
 
-                final_df = final_df[~(final_df['HASH_2'].isin(duplicate_hash_list))]
+                final_df = final_df[~(final_df['HASH_1'].isin(duplicate_hash_list))]
                 
                 final_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv",index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv"))
                 
@@ -1582,80 +1582,80 @@ for i in files_location:
                 
                 # print(CDMS_output.columns)
                 
-                body = {
-                
-                    "fileName":"CDMS_output.csv",
-                
-                    "filePath":i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//",
-                
-                    "subListID":76,
-                
-                    "userID":149,
-                
-                    "businessHierarchyId":23,
+            body = {
+            
+                "fileName":"CDMS_output.csv",
+            
+                "filePath":i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//",
+            
+                "subListID":76,
+            
+                "userID":149,
+            
+                "businessHierarchyId":23,
 
-                    "batchNo":"b1"
-                
-                }
-                
-                
-                response = requests.post(url = CDMS_properties['main_app']+'fileUploadExternalApi',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body)
+                "batchNo":"b1"
+            
+            }
+            
+            
+            response = requests.post(url = CDMS_properties['main_app']+'fileUploadExternalApi',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body)
 
-                upload_id=0         
+            upload_id=0         
 
-                if response.status_code == 200:
-                    # Parse JSON response
-                    response_data = response.json()
-                    content = response_data['content']  # Extract the 'content' field from the response
-                    
-                    # Check if content exists and if it has 'uploadId'
-                    if content and 'uploadId' in content:
-                        upload_id = content['uploadId']
-                        # print("Upload ID:", upload_id)
-                    else:
-                        print("Upload ID not found in the response content.")
+            if response.status_code == 200:
+                # Parse JSON response
+                response_data = response.json()
+                content = response_data['content']  # Extract the 'content' field from the response
+                
+                # Check if content exists and if it has 'uploadId'
+                if content and 'uploadId' in content:
+                    upload_id = content['uploadId']
+                    # print("Upload ID:", upload_id)
                 else:
-                    print("Request failed with status code:", response.status_code)
+                    print("Upload ID not found in the response content.")
+            else:
+                print("Request failed with status code:", response.status_code)
 
-                checker_body = {
-                
-                    "fileName":"CDMS_output.csv",
-                
-                    "location":i,
-                
-                    "status":'Success',
-                
-                    "count":final_count,
-                
-                    "uploadId":upload_id,
+            checker_body = {
+            
+                "fileName":"CDMS_output.csv",
+            
+                "location":i,
+            
+                "status":'Success',
+            
+                "count":final_count,
+            
+                "uploadId":upload_id,
 
-                    "processName":process_name,
+                "processName":process_name,
 
-                    "origin":"CDMS",
-                
-                    "subListID":76,
-                
-                    "userID":149,
-                
-                    "businessHierarchyId":23
-                
-                }
+                "origin":"CDMS",
+            
+                "subListID":76,
+            
+                "userID":149,
+            
+                "businessHierarchyId":23
+            
+            }
 
-                # response = requests.post(url = CDMS_properties['main_app']+'crm/saveDudupStatus',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = checker_body)
-                            
-                # if response.status_code != 200:
+            # response = requests.post(url = CDMS_properties['main_app']+'crm/saveDudupStatus',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = checker_body)
+                        
+            # if response.status_code != 200:
 
-                #     print("Save DeDup Request failed with status code:", response.status_code)
+            #     print("Save DeDup Request failed with status code:", response.status_code)
+            
+            print("Message sent successfully")
+                                        
+            # with open('response.txt','r') as w:
                 
-                print("Message sent successfully")
-                                            
-                # with open('response.txt','r') as w:
-                    
-                #     text = w.read()
+            #     text = w.read()
 
-                # with open('response.txt','w') as w:
-                    
-                #     w.write(text+str(count)+"."+i+"\n")
+            # with open('response.txt','w') as w:
+                
+            #     w.write(text+str(count)+"."+i+"\n")
                                     
 
                 
