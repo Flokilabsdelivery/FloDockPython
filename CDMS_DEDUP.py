@@ -910,25 +910,25 @@ for i in files_location:
 
                 
                 
-                df['ISSUEDATE'] = pd.to_datetime(df['ISSUEDATE'],format = '%m/%d/%Y %I:%M:%S %p',errors = 'coerce')
+                df['ISSUEDATE'] = pd.to_datetime(df['ISSUEDATE'],format = '%Y-%m-%dT%H:%M:%S.%fZ',errors = 'coerce')
 
                 df['ISSUEDATE'] = df['ISSUEDATE'].dt.strftime('%m/%d/%Y')
                 
                 df['ISSUEDATE'].fillna('',inplace = True)
 
-                df['EXPIRYDATE'] = pd.to_datetime(df['EXPIRYDATE'],format = '%m/%d/%Y %I:%M:%S %p',errors = 'coerce')
+                df['EXPIRYDATE'] = pd.to_datetime(df['EXPIRYDATE'],format = '%Y-%m-%dT%H:%M:%S.%fZ',errors = 'coerce')
 
                 df['EXPIRYDATE'] = df['EXPIRYDATE'].dt.strftime('%m/%d/%Y')
                 
                 df['EXPIRYDATE'].fillna('',inplace = True)
 
-                df['DATEOFBIRTH'] = pd.to_datetime(df['DATEOFBIRTH'],format = '%m/%d/%Y %I:%M:%S %p',errors = 'coerce')
+                df['DATEOFBIRTH'] = pd.to_datetime(df['DATEOFBIRTH'],format = '%Y-%m-%dT%H:%M:%S.%fZ',errors = 'coerce')
 
                 df['DATEOFBIRTH'] = df['DATEOFBIRTH'].dt.strftime('%m/%d/%Y')
                 
                 df['DATEOFBIRTH'].fillna('',inplace = True)
 
-                df['LOAD_DT'] = pd.to_datetime(df['LOAD_DT'],format = '%m/%d/%Y %I:%M:%S %p',errors = 'coerce')
+                df['LOAD_DT'] = pd.to_datetime(df['LOAD_DT'],format = '%Y-%m-%dT%H:%M:%S.%fZ',errors = 'coerce')
 
                 df['LOAD_DT'] = df['LOAD_DT'].dt.strftime('%m/%d/%Y')
                 
@@ -946,7 +946,7 @@ for i in files_location:
 
 
 
-                # df['ISSUEDATE'] = pd.to_datetime(df['ISSUEDATE'],format = '%m/%d/%Y %I:%M:%S %p')
+                # df['ISSUEDATE'] = pd.to_datetime(df['ISSUEDATE'],format = '%Y-%m-%dT%H:%M:%S.%fZ')
 
 
 
