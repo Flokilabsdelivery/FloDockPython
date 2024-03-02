@@ -1351,9 +1351,15 @@ for i in files_location:
                 duplicate_hash_list = []
                 
                 
-                for xy in range(0,(len(final_df)//500)):
+                chunk_size = 500
+
+                for xy in range(0, (len(final_df) // chunk_size) + 1):  # +1 to include the remaining data
+
+                    start_index = xy * chunk_size
+
+                    end_index = min((xy + 1) * chunk_size, len(final_df))
                     
-                    hash_codes = final_df['HASH_1'][(xy*500):((xy*500)+500)]
+                    hash_codes = final_df['HASH_1'][start_index:end_index]
                 
                     body = {"hashCodes":list(hash_codes)}
                 
