@@ -580,7 +580,7 @@ files_in_drive = list_all_files_in_drive(drive_to_list)
 
 files_location = []
 
-
+print(files_in_drive)
 
 for file in files_in_drive:
     
@@ -588,7 +588,7 @@ for file in files_in_drive:
     
     list1 = file.split('/')    
     
-    list1.pop()
+    # list1.pop()
     
     list1 = '/'.join(list1)
                        
@@ -603,64 +603,84 @@ count = 0
 
 total_dataframe = pd.DataFrame()
 
-
+print(files_location)
 # files_location = files_location[0:1]
 
 # files_location=['/STFS0029M/CDMS/AUG/2023-08-01']
 
+for file_path in files_location:
 
-for i in files_location:
-    
     try:
         
-        if (CDMS_properties['cdms_file1']) in os.listdir(i):
+        i, filename = os.path.split(file_path)
+
+        if (filename) in os.listdir(i) and filename.endswith('.csv'):
+            
+            print(i,filename)
             
             # print(i)
 
-            fileName = "CDMS_output.csv"
-
-            location = i
-
-            processName = process_name
-
             url = CDMS_properties['main_app'] + 'crm/getDudupStatus'
 
-            params = {
-                'fileName': fileName,
-                'location': location,
-                'processName': process_name
-            }
-            headers = {
-                'X-AUTH-TOKEN': CDMS_properties['x-auth-token'],
-                'Content-Type': 'application/json'
-            }
-
-            # print(url)
-
-            # response = requests.get(url=url, params=params, headers=headers)
-            
-            # content =False
-
-            # if response.status_code == 200:
-            #     # Parse JSON response
-            #     response_data = response.json()
-            #     content = response_data['content']  # Extract the 'content' field from the response
-            #     # print("Content:", content)
-            # else:
-            #     print("Request failed with status code:", response.status_code)
-
-            # if not content:
-            #     continue
-            
-            # print ('not break')
-
-            df_ = pd.read_csv(i+"//"+CDMS_properties['cdms_file1'])
+            df_ = pd.read_csv(i+"//"+filename)
 
             total_rows = len(df_)
 
+            preProcess_body = {
+            
+                "fileName":"output_"+filename,
+            
+                "inputLocation":i,
+
+                "inputCount":total_rows,
+            
+                "processName": process_name,
+
+                "origin":'CDMS',
+
+                "status":'Processing',
+
+                "subListID":76,
+            
+                "userID":149,
+            
+                "businessHierarchyId":23
+            }
+
+            response = requests.post(url = CDMS_properties['main_app']+'crm/saveDedupStatus',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = preProcess_body)
+
+            content =False
+
+            if response.status_code == 200:
+                # Parse JSON response
+                response_data = response.json()
+                content = response_data['content']  # Extract the 'content' field from the response
+                print("Content:", content)
+            else:
+                print("Request failed with status code:", response.status_code)
+
+            if not content:
+                continue
+
+            field_id=content    
+
             chunk_size = 1000
 
-            for j, chunk_df in enumerate(pd.read_csv(i+"//"+CDMS_properties['cdms_file1'], chunksize=chunk_size, low_memory=False)):
+            if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//temp_valid_"+filename):
+
+                os.remove(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//temp_valid_"+filename)
+
+            if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//invalid_"+filename):
+
+                os.remove(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//invalid_"+filename)
+
+            if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers"+filename):
+
+                os.remove(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers"+filename)
+
+            for j, chunk_df in enumerate(pd.read_csv(i+"//"+filename, chunksize=chunk_size, low_memory=False)):
+
+                # continue
 
                 start_index = j * chunk_size
 
@@ -824,16 +844,7 @@ for i in files_location:
                 df[config['LastName']] = df[config['LastName']].fillna('')   
                 
                 df[config['CustomerAddress']] = df[config['CustomerAddress']].fillna('')   
-        
-        
-                
-        
-        
-        
-                
-
-                
-                
+                        
                 df[config['FirstName']] = df[config['FirstName']].str.upper()   
                 
                 df[config['LastName']] = df[config['LastName']].str.upper()   
@@ -852,8 +863,6 @@ for i in files_location:
         
                     df[config['LastName']] = df[config['LastName']].str.replace(words.upper(),words.upper().replace(' ','-')) 
         
-                
-                
                 #GYU code
                     
                 df = df.apply(lambda row:GYU(row),axis = 1)
@@ -883,12 +892,13 @@ for i in files_location:
                     
                     df[column+'_error'] = df[column].copy()
                     
-                    
-                
+
+                print("before Email")
+
                 df.loc[~(df['EMAIL'].str.contains(email_regex)),'floki_changes']= 'invalid Email so replaced as null;'
                             
                 df['EMAIL']= df[df['EMAIL'].str.contains(email_regex, na=False)]['EMAIL']
-                
+                print("after Email") 
                 #landline number validation
                 
                 df['LANDLINE_CHECK'] = df['LANDLINE_NO']
@@ -942,20 +952,10 @@ for i in files_location:
 
                 df.loc[df['LOAD_DT']=='','floki_changes']+='LOAD_DT not in format or empty;'
 
-                            
-
-
-
                 # df['ISSUEDATE'] = pd.to_datetime(df['ISSUEDATE'],format = '%Y-%m-%dT%H:%M:%S.%fZ')
 
-
-
-
                 #adding suffix
-                
-                
-                
-                
+                                
                 suffixes = [ ' I', ' II', ' III', ' IV', ' V', ' JR', ' SR']    
                 
                 df['SUFFIX'] = ''
@@ -983,6 +983,8 @@ for i in files_location:
                     df_temp = df[df['CORPORATE']==False]
                     
                     df = df[df['CORPORATE']==True]
+
+                    # corporate_key = re.escape(corporate_key)
                             
                     df_temp['CORPORATE'] = df_temp[config['FirstName']].str.contains(corporate_key)
                     
@@ -1024,9 +1026,6 @@ for i in files_location:
                 
                 #single character
                 
-                
-                
-                
                 # df['count'] = df[config['FirstName']].str.len()
                 
                 # df_temp = df[df['count']<2]
@@ -1046,8 +1045,6 @@ for i in files_location:
                 
                 # while(True):
                 
-                
-                
                 print()
                 
                 print('single character check')
@@ -1058,8 +1055,6 @@ for i in files_location:
                 print('first name completed')
                 
                 # df = df[0:10]
-                
-                
                 
                 df = df.apply(lambda row:single_character_check_lastname(row),axis = 1)
                 
@@ -1073,7 +1068,6 @@ for i in files_location:
                 
     #            print(df['valid'])
                 
-        
                 print('contact details check')
                 
                 df['length'] = df['CONTACT_DETAILS'].str.len()
@@ -1205,11 +1199,11 @@ for i in files_location:
                 
                 final_df_duplicates1 = final_df[final_df.duplicated(['HASH_1'])]
                 
-                final_df = final_df[~(final_df.duplicated(['HASH_1']))]
+                # final_df = final_df[~(final_df.duplicated(['HASH_1']))]
                 
                 final_df_duplicates2 = final_df[final_df.duplicated(['HASH_2'])]
                 
-                final_df = final_df[~(final_df.duplicated(['HASH_2']))]
+                # final_df = final_df[~(final_df.duplicated(['HASH_2']))]
                 
                 final_df_duplicates = pd.concat([final_df_duplicates1,final_df_duplicates2],axis = 0)                    
                 
@@ -1348,37 +1342,37 @@ for i in files_location:
                 # # valid_output = final_df[~(valid_output['HASH_1'].isin(duplicate_hashcodes))]
                 
                 
-                duplicate_hash_list = []
+                # duplicate_hash_list = []
                 
                 
-                chunk_size = 500
+                # chunk_size = 500
 
-                for xy in range(0, (len(final_df) // chunk_size) + 1):  # +1 to include the remaining data
+                # for xy in range(0, (len(final_df) // chunk_size) + 1):  # +1 to include the remaining data
 
-                    start_index = xy * chunk_size
+                #     start_index = xy * chunk_size
 
-                    end_index = min((xy + 1) * chunk_size, len(final_df))
-                    
-                    hash_codes = final_df['HASH_1'][start_index:end_index]
+                #     end_index = min((xy + 1) * chunk_size, len(final_df))
+
+                #     hash_codes = final_df['HASH_1'][start_index:end_index]
                 
-                    body = {"hashCodes":list(hash_codes)}
+                #     body = {"hashCodes":list(hash_codes)}
                 
-                    response = requests.post(url = CDMS_properties['main_app']+'getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
+                #     response = requests.post(url = CDMS_properties['main_app']+'getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
                 
-                    duplicate_hashcodes = response.json()     
+                #     duplicate_hashcodes = response.json()     
                 
-                    print()
+                #     print()
                         
-                    # print(response.status_code)
+                #     # print(response.status_code)
                     
-                    # duplicate_hash = final_df[final_df['HASH_2'].isin(duplicate_hashcodes)]
+                #     # duplicate_hash = final_df[final_df['HASH_2'].isin(duplicate_hashcodes)]
                 
-                    duplicate_hash_list.extend(duplicate_hashcodes)
+                #     duplicate_hash_list.extend(duplicate_hashcodes)
                 
                     
-                    # duplicate_hash_df = pd.concat([duplicate_hash_df,duplicate_hash],axis = 0)
+                #     # duplicate_hash_df = pd.concat([duplicate_hash_df,duplicate_hash],axis = 0)
                     
-                    # valid_output = valid_output[~(valid_output['HASH_2'].isin(duplicate_hashcodes))]
+                #     # valid_output = valid_output[~(valid_output['HASH_2'].isin(duplicate_hashcodes))]
                     
                     
                 
@@ -1526,15 +1520,15 @@ for i in files_location:
 
                 final_df['FILE_LOC'] = i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv"
 
-                duplicate_hash = final_df[final_df['HASH_1'].isin(duplicate_hash_list)]
+                # duplicate_hash = final_df[final_df['HASH_1'].isin(duplicate_hash_list)]
 
-                duplicate_hash.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_update_output.csv",index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_update_output.csv"))
+                # duplicate_hash.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_update_output.csv",index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_update_output.csv"))
 
-                print(len(duplicate_hash))
+                # print(len(duplicate_hash))
 
-                final_df = final_df[~(final_df['HASH_1'].isin(duplicate_hash_list))]
+                # final_df = final_df[~(final_df['HASH_1'].isin(duplicate_hash_list))]
                 
-                final_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv",index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv"))
+                final_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//temp_valid_"+filename,index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//temp_valid_"+filename))
                 
                 final_count =len(final_df)
                 
@@ -1545,39 +1539,15 @@ for i in files_location:
                 final_df_duplicates['reason'] = 'duplicates in input'
                 
                 
-                invalid_records = pd.concat([invalid_records,final_df_duplicates],axis = 0)
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                #hashcode API check
-                
-                # invalid_records = pd.concat([invalid_records,duplicates],axis = 0)
-                
-                
-                #hashcode API check
-                
-                
-                
-                
-                
-                
-                
-                
-                
+                # invalid_records = pd.concat([invalid_records,final_df_duplicates],axis = 0)
                 
                 invalid_records = pd.concat([invalid_records,mis_spelled_duplicates_final],axis = 0)
                 
                 print(len(invalid_records))
                 
-                invalid_records.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//CDMS_output.csv",index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//CDMS_output.csv"))
+                invalid_records.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//invalid_"+filename,index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//invalid_"+filename))
                 
-                corporate_customers.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers.csv",index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers.csv"))
+                corporate_customers.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers"+filename,index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers"+filename))
                 
                 
                 # print(len(corporate_customers))
@@ -1587,6 +1557,35 @@ for i in files_location:
 
                 
                 # print(CDMS_output.columns)
+            
+            df=pd.read_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//temp_valid_"+filename)
+
+            final_df = df[~(df.duplicated(['HASH_1']))]
+
+            duplicate_df = df[(df.duplicated(['HASH_1']))]
+
+            # corporate_customers = final_df[final_df['CORPORATE'] == True]
+                
+            # final_df = final_df[final_df['CORPORATE']==False]
+
+            # corporate_customers.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_valid_"+filename,index  = False)
+
+            final_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_valid_"+filename,index  = False)
+
+            duplicate_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//CDMS_duplicate_"+filename,index  = False)
+
+            dedup_body = {
+
+                "fileId":field_id,
+                        
+                "outputlocation":i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//",
+
+                "outputCount":len(final_df),
+            
+                "processName": process_name,
+
+                "status":'Processed',
+            }
                 
             body = {
             
@@ -1600,7 +1599,9 @@ for i in files_location:
             
                 "businessHierarchyId":23,
 
-                "batchNo":"b1"
+                "batchNo":"b1",
+
+                "dedupStatus":dedup_body
             
             }
             
@@ -1622,37 +1623,7 @@ for i in files_location:
                     print("Upload ID not found in the response content.")
             else:
                 print("Request failed with status code:", response.status_code)
-
-            checker_body = {
-            
-                "fileName":"CDMS_output.csv",
-            
-                "location":i,
-            
-                "status":'Success',
-            
-                "count":final_count,
-            
-                "uploadId":upload_id,
-
-                "processName":process_name,
-
-                "origin":"CDMS",
-            
-                "subListID":76,
-            
-                "userID":149,
-            
-                "businessHierarchyId":23
-            
-            }
-
-            # response = requests.post(url = CDMS_properties['main_app']+'crm/saveDudupStatus',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = checker_body)
-                        
-            # if response.status_code != 200:
-
-            #     print("Save DeDup Request failed with status code:", response.status_code)
-            
+           
             print("Message sent successfully")
                                         
             # with open('response.txt','r') as w:
