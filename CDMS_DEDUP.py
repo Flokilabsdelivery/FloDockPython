@@ -948,7 +948,7 @@ for file_path in files_location:
 
                 df['GENDER'] = df['GENDER'].map(gender_map).fillna(df['GENDER'])
 
-                status_map = {'U': 'Unmarried', 'M': 'Married', 'S': 'Seprated', 'W': 'Widowed','D': 'Divorced'}
+                status_map = {'U': 'Unmarried', 'M': 'Married', 'S': 'Seprated', 'W': 'Widowed','D': 'Divorced','A':'Annuled'}
 
                 df['CIVILSTATUS'] = df['CIVILSTATUS'].map(status_map).fillna(df['CIVILSTATUS'])
 
