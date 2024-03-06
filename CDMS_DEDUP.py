@@ -1003,7 +1003,7 @@ for file_path in files_location:
                     
                     df = df[df['CORPORATE']==True]
 
-                    # corporate_key = re.escape(corporate_key)
+                    corporate_key = re.escape(corporate_key) + r'\b'
                             
                     df_temp['CORPORATE'] = df_temp[config['FirstName']].str.contains(corporate_key)
                     
