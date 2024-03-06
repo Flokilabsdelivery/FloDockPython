@@ -628,7 +628,7 @@ for file_path in files_location:
 
             preProcess_body = {
             
-                "fileName":"output_"+filename,
+                "fileName":"CDMS_valid_"+filename,
             
                 "inputLocation":i,
 
@@ -664,7 +664,7 @@ for file_path in files_location:
 
             field_id=content    
 
-            chunk_size = 1000
+            cunk_size = 30000
 
             if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//temp_valid_"+filename):
 
@@ -678,13 +678,13 @@ for file_path in files_location:
 
                 os.remove(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers"+filename)
 
-            for j, chunk_df in enumerate(pd.read_csv(i+"//"+filename, chunksize=chunk_size, low_memory=False)):
+            for j, chunk_df in enumerate(pd.read_csv(i+"//"+filename, chunksize=cunk_size, low_memory=False)):
 
                 # continue
 
-                start_index = j * chunk_size
+                start_index = j * cunk_size
 
-                end_index = min((j + 1) * chunk_size, total_rows)
+                end_index = min((j + 1) * cunk_size, total_rows)
 
                 print(f"Processing chunk {j+1}: Rows {start_index}-{end_index}")
 
@@ -944,6 +944,18 @@ for file_path in files_location:
                 
                 df['LOAD_DT'].fillna('',inplace = True)
 
+                gender_map = {'M': 'Male', 'F': 'Female'}
+
+                df['GENDER'] = df['GENDER'].map(gender_map).fillna(df['GENDER'])
+
+                status_map = {'U': 'Unmarried', 'M': 'Married', 'S': 'Seprated', 'W': 'Widowed','D': 'Divorced'}
+
+                df['CIVILSTATUS'] = df['CIVILSTATUS'].map(status_map).fillna(df['CIVILSTATUS'])
+
+                minor_map = {'False': 'No', 'True': 'Yes'}
+
+                df['IS_MINOR'] = df['IS_MINOR'].map(minor_map).fillna(df['IS_MINOR'])
+
                 df.loc[df['ISSUEDATE']=='','floki_changes']+='issuedate not in format or empty;'
 
                 df.loc[df['EXPIRYDATE']=='','floki_changes']+='expiry date not in format or empty;'
@@ -956,20 +968,27 @@ for file_path in files_location:
 
                 #adding suffix
                                 
-                suffixes = [ ' I', ' II', ' III', ' IV', ' V', ' JR', ' SR']    
+                suffixes = [' JR.',' SR.',' JR', ' SR',' I', ' II', ' III', ' IV', ' V']    
                 
                 df['SUFFIX'] = ''
                 
                 for suffix in suffixes:
                     
-                    df.loc[df[config['FirstName']].str.contains(suffix),'SUFFIX'] = suffix 
+                    # df.loc[df[config['FirstName']].str.contains(suffix),'SUFFIX'] = suffix 
                 
-                    df[config['FirstName']]=  df[config['FirstName']].str.replace(suffix,'')
+                    # df[config['FirstName']]=  df[config['FirstName']].str.replace(suffix,'')
                 
-                    df.loc[df[config['LastName']].str.contains(suffix),'SUFFIX'] = suffix 
+                    # df.loc[df[config['LastName']].str.contains(suffix),'SUFFIX'] = suffix 
                 
-                    df[config['LastName']] = df[config['LastName']].str.replace(suffix,'')
-                
+                    # df[config['LastName']] = df[config['LastName']].str.replace(suffix,'')
+
+                    pattern = re.escape(suffix) + r'\b'
+                     # Check and update FirstName
+                    df.loc[df[config['FirstName']].str.contains(suffix), 'SUFFIX'] = df.loc[df[config['FirstName']].str.contains(suffix), config['FirstName']].apply(lambda x: re.search(pattern, x).group() if re.search(pattern, x) is not None else '')
+                    df.loc[df[config['LastName']].str.contains(suffix), 'SUFFIX'] = df.loc[df[config['LastName']].str.contains(suffix), config['LastName']].apply(lambda x: re.search(pattern, x).group() if re.search(pattern, x) is not None else '')
+                    df[config['FirstName']] = df[config['FirstName']].apply(lambda x: re.sub(pattern, '', x))
+                    df[config['LastName']] = df[config['LastName']].apply(lambda x: re.sub(pattern, '', x))
+                            
                 # corporate customers
                 
                 print('corporate customers')
@@ -1342,32 +1361,32 @@ for file_path in files_location:
                 # # valid_output = final_df[~(valid_output['HASH_1'].isin(duplicate_hashcodes))]
                 
                 
-                # duplicate_hash_list = []
+                duplicate_hash_list = []
                 
                 
-                # chunk_size = 500
+                chunk_size = 500
 
-                # for xy in range(0, (len(final_df) // chunk_size) + 1):  # +1 to include the remaining data
+                for xy in range(0, (len(final_df) // chunk_size) + 1):  # +1 to include the remaining data
 
-                #     start_index = xy * chunk_size
+                    start_index = xy * chunk_size
 
-                #     end_index = min((xy + 1) * chunk_size, len(final_df))
+                    end_index = min((xy + 1) * chunk_size, len(final_df))
 
-                #     hash_codes = final_df['HASH_1'][start_index:end_index]
+                    hash_codes = final_df['HASH_1'][start_index:end_index]
                 
-                #     body = {"hashCodes":list(hash_codes)}
+                    body = {"hashCodes":list(hash_codes)}
                 
-                #     response = requests.post(url = CDMS_properties['main_app']+'getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
+                    response = requests.post(url = CDMS_properties['main_app']+'getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
                 
-                #     duplicate_hashcodes = response.json()     
+                    duplicate_hashcodes = response.json()     
                 
-                #     print()
+                    print()
                         
-                #     # print(response.status_code)
+                    # print(response.status_code)
                     
-                #     # duplicate_hash = final_df[final_df['HASH_2'].isin(duplicate_hashcodes)]
+                    # duplicate_hash = final_df[final_df['HASH_2'].isin(duplicate_hashcodes)]
                 
-                #     duplicate_hash_list.extend(duplicate_hashcodes)
+                    duplicate_hash_list.extend(duplicate_hashcodes)
                 
                     
                 #     # duplicate_hash_df = pd.concat([duplicate_hash_df,duplicate_hash],axis = 0)
@@ -1520,6 +1539,10 @@ for file_path in files_location:
 
                 final_df['FILE_LOC'] = i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_output.csv"
 
+                final_df['IN_SYSTEM'] = ''
+
+                final_df.loc[final_df['HASH_1'].isin(duplicate_hash_list), 'IN_SYSTEM'] = 'existing in system'
+                
                 # duplicate_hash = final_df[final_df['HASH_1'].isin(duplicate_hash_list)]
 
                 # duplicate_hash.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_update_output.csv",index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_update_output.csv"))
@@ -1589,7 +1612,7 @@ for file_path in files_location:
                 
             body = {
             
-                "fileName":"CDMS_output.csv",
+                "fileName":"CDMS_valid_"+filename,
             
                 "filePath":i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//",
             
