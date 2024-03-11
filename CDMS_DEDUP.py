@@ -568,8 +568,6 @@ if __name__ == "__main__":
 
         process_name = sys.argv[1]
 
-        print(f"Process Name: {process_name}")
-
     else:
 
         print("No process name provided.")
@@ -580,7 +578,7 @@ files_in_drive = list_all_files_in_drive(drive_to_list)
 
 files_location = []
 
-print(files_in_drive)
+# print(files_in_drive)
 
 for file in files_in_drive:
     
@@ -603,7 +601,7 @@ count = 0
 
 total_dataframe = pd.DataFrame()
 
-print(files_location)
+# print(files_location)
 
 # files_location=['/STFS0029M/CDMS/AUG/2023-08-01']
 
@@ -614,14 +612,14 @@ for file_path in files_location:
         i, filename = os.path.split(file_path)
 
         if (filename) in os.listdir(i) and filename.endswith('.csv'):
-            
-            print(i,filename)
 
             url = CDMS_properties['main_app'] + 'crm/getDudupStatus'
 
             df_ = pd.read_csv(i+"//"+filename)
 
             total_rows = len(df_)
+
+            print('Input file Length '+'(' +filename +') '+ str(total_rows))
 
             preProcess_body = {
             
@@ -654,13 +652,15 @@ for file_path in files_location:
 
                 content = response_data['content']  # Extract the 'content' field from the response
 
-                print("Content:", content)
+                # print("Content:", content)
 
             else:
 
                 print("Request failed with status code:", response.status_code)
 
             if not content:
+
+                print('File already processed or request failed')
 
                 continue
 
@@ -688,7 +688,7 @@ for file_path in files_location:
 
                 end_index = min((j + 1) * cunk_size, total_rows)
 
-                print(f"Processing chunk {j+1}: Rows {start_index}-{end_index}")
+                # print(f"Processing chunk {j+1}: Rows {start_index}-{end_index}")
 
                 CDMS_merged = df_[start_index:end_index]
             
@@ -721,10 +721,6 @@ for file_path in files_location:
                 df = CDMS_output.copy()
                                 
                 errored_headers = ['EMAIL','LANDLINE_NO','EXPIRYDATE','LOAD_DT','ISSUEDATE','DATEOFBIRTH']
-                                
-                print('Input file Length')
-                
-                print(len(df))
                 
                 #rule1 upper case and accent change
                 
@@ -770,16 +766,11 @@ for file_path in files_location:
                 
                 for column in ['EMAIL','LANDLINE_NO']:
                     
-                    df[column+'_error'] = df[column].copy()
-                    
-
-                print("before Email")
+                    df[column+'_error'] = df[column].copy()                    
 
                 df.loc[~(df['EMAIL'].str.contains(email_regex)),'floki_changes']= 'invalid Email so replaced as null;'
                             
                 df['EMAIL']= df[df['EMAIL'].str.contains(email_regex, na=False)]['EMAIL']
-
-                print("after Email") 
 
                 #landline number validation
                 
@@ -873,7 +864,7 @@ for file_path in files_location:
                             
                 # corporate customers
                 
-                print('corporate customers')
+                # print('corporate customers')
                 
                 corp_name_pattern = ['ACADEMY ', ' ACADEMY', 'TECHNOLOGY ', ' TECHNOLOGY', 'TECHNO ', ' TECHNO', 'STALL ', ' STALL', 'SERVICES ', ' SERVICES', 'BRANCH ', ' BRANCH', 'OUTLET ', ' OUTLET', 'EXPRESS ', ' EXPRESS', 'CENTER ', ' CENTER', 'BUSINESS ', ' BUSINESS', 'CORPORATION ', ' CORPORATION', 'COMPANY ', ' COMPANY', ' INC ', '  INC', 'INC  ', ' INC ', 'COURIER ', ' COURIER', 'COOPERATIVE ', ' COOPERATIVE', 'BANK ', ' BANK', 'SECURITY ', ' SECURITY', 'DISTRIBUTOR ', ' DISTRIBUTOR', 'DISTILLERS ', ' DISTILLERS', 'PHARMACY ', ' PHARMACY', 'MOTORS ', ' MOTORS', 'SCHOOL ', ' SCHOOL', 'TRADEING ', ' TRADEING', 'ACCOUNTS ', ' ACCOUNTS', 'ASSOCIATION ', ' ASSOCIATION', 'UNIV ', ' UNIV', 'COLLEGES ', ' COLLEGES', 'MERCHANT/MERCHANDIZING ', ' MERCHANT/MERCHANDIZING', 'STORE ', ' STORE', 'PHILS ', ' PHILS', 'INSTITUTE ', ' INSTITUTE', 'LIMITED ', ' LIMITED', 'ENTERPRISES ', ' ENTERPRISES', 'VENTURES ', ' VENTURES', 'SHOP ', ' SHOP', 'BOUTIQUE ', ' BOUTIQUE', 'CLINIC ', ' CLINIC', 'HOSPITAL ', ' HOSPITAL', 'FINANCIAL ', ' FINANCIAL', 'PETROL ', ' PETROL', 'GASSTATION ', ' GASSTATION', 'FUEL ', ' FUEL', 'DRUG ', ' DRUG', 'TRAVEL ', ' TRAVEL', 'TOURS ', ' TOURS', 'TOURISM ', ' TOURISM', 'RESTAURANT ', ' RESTAURANT', 'LTD ', ' LTD', 'FINANCE ', ' FINANCE', 'REGION ', ' REGION', 'MARKETING ', ' MARKETING', 'DOLE NCR ', ' DOLE NCR', 'FOOD ', ' FOOD', 'BAKERY ', ' BAKERY', 'CONSTRUCTION ', ' CONSTRUCTION', 'BUILDERS ', ' BUILDERS', 'SUPPLY MATERIALS ', ' SUPPLY MATERIALS', 'JEWELRY ', ' JEWELRY', 'JEWELERS ', ' JEWELERS', 'EDUCATIONAL ', ' EDUCATIONAL', 'AUTO ', ' AUTO', 'MOTORCYCLE ', ' MOTORCYCLE', 'PARTS ', ' PARTS', 'INSURANCE ', ' INSURANCE', 'HEALTH ', ' HEALTH', 'WELLNESS ', ' WELLNESS', 'REALESTATE ', ' REALESTATE', 'PROPERTIES ', ' PROPERTIES']
                 
@@ -927,21 +918,17 @@ for file_path in files_location:
                 
                 #single character
                 
-                print('single character check')                
+                # print('single character check')                
                 
                 df = df.apply(lambda row:single_character_check_firstname(row),axis = 1)
                 
-                print('first name completed')
-                
                 df = df.apply(lambda row:single_character_check_lastname(row),axis = 1)
                 
-                print('numeric character check')
+                # print('numeric character check')
                 
                 df = df.apply(lambda row:number_check_firstname(row),axis = 1)
                 
                 df = df.apply(lambda row:number_check_lastname(row),axis = 1)
-                                
-                print('contact details check')
                 
                 df['length'] = df['CONTACT_DETAILS'].str.len()
                 
@@ -959,13 +946,13 @@ for file_path in files_location:
 
                 df['CONTACT_DETAILS'] = df['CONTACT_DETAILS'].apply(add_country_code2)               
                 
-                print('special character check')
+                # print('special character check')
                 
                 df = df.apply(lambda row:special_character_check_firstname(row),axis = 1)
                 
                 df = df.apply(lambda row:special_character_check_lastname(row),axis = 1)
                                         
-                print(time.time() - start_time)
+                # print(time.time() - start_time)
                        
                 missing_columns = set(config['HASH_1_columns'].split(',')) - set(df.columns)
                 
@@ -986,8 +973,6 @@ for file_path in files_location:
                 df1 = pd.DataFrame()
                 
                 df2 = pd.DataFrame()
-                
-                print('Hash code generation started')
                 
                 missing_columns = set(config['HASH_1_columns'].split(',')) - set(df.columns)
                 
@@ -1179,10 +1164,6 @@ for file_path in files_location:
                             
                 final_df = final_df[headers_final]
                 
-                final_df['BRANCHCODE'] = final_df['BRANCHCODE'].fillna('')
-
-                final_df.loc[final_df['BRANCHCODE'] == '', 'BRANCHCODE'] = 'ZZZ'
-                
                 final_df['Remarks_y'] = ''
                 
                 final_df['ID'] = ''
@@ -1207,7 +1188,7 @@ for file_path in files_location:
                 
                 final_count =len(final_df)
                 
-                print(final_count)
+                # print(final_count)
 
                 # duplicate_hash.to_csv('invalid//duplicates_'+business.loc[i,'File Name'],index  = False)
                 
@@ -1217,13 +1198,17 @@ for file_path in files_location:
                 
                 # invalid_records = pd.concat([invalid_records,mis_spelled_duplicates_final],axis = 0)
                 
-                print(len(invalid_records))
+                # print(len(invalid_records))
                 
                 invalid_records.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//invalid_"+filename,index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//invalid_"+filename))
                 
                 corporate_customers.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers"+filename,index  = False, mode='a', header=not os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers"+filename))
             
             df=pd.read_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//temp_valid_"+filename)
+
+            df['BRANCHCODE'] = df['BRANCHCODE'].fillna('')
+
+            df.loc[df['BRANCHCODE'] == '', 'BRANCHCODE'] = 'ZZZ'
 
             final_df = df[~(df.duplicated(['HASH_1']))]
 
