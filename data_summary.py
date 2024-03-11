@@ -155,6 +155,8 @@ for file_path in files_location:
 
                 print('Dedup process not done')
 
+            print('Data summary report '+ filename)
+
     except Exception as e:
     
         print(str(e))            
