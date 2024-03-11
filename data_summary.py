@@ -20,14 +20,24 @@ def list_all_files_in_drive(drive):
 
     return all_files
 
+# config_parser = configparser.ConfigParser()
+
+# current_directory = os.path.dirname(os.path.realpath(__file__))
+
+# properties_file_path = os.path.join(current_directory, 'config.properties')
+
+# with open(properties_file_path) as file:
+#     config_parser.read_string('[default]\n' + file.read())
+
+# CDMS_properties = {}
+
+# for option in config_parser.options('default'):
+#     CDMS_properties[option] = config_parser.get('default', option)
+
+
 config_parser = configparser.ConfigParser()
 
-current_directory = os.path.dirname(os.path.realpath(__file__))
-
-properties_file_path = os.path.join(current_directory, 'config.properties')
-
-with open(properties_file_path) as file:
-    config_parser.read_string('[default]\n' + file.read())
+config_parser.read_string('[default]\n' + open('config.properties').read())
 
 CDMS_properties = {}
 
