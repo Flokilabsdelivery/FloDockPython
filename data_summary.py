@@ -76,7 +76,7 @@ for file_path in files_location:
 
             if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_valid_"+filename):
 
-                total_df=pd.read_csv(file_path)
+                total_df=pd.read_csv(file_path,encoding='utf-16')
 
                 total_len = len(total_df)
 
