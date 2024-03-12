@@ -642,29 +642,29 @@ for file_path in files_location:
                 "businessHierarchyId":23
             }
 
-            # response = requests.post(url = CDMS_properties['main_app']+'crm/saveDedupStatus',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = preProcess_body)
+            response = requests.post(url = CDMS_properties['main_app']+'crm/saveDedupStatus',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = preProcess_body)
 
-            # content =False
+            content =False
 
-            # if response.status_code == 200:
+            if response.status_code == 200:
                 
-            #     response_data = response.json()
+                response_data = response.json()
 
-            #     content = response_data['content']  # Extract the 'content' field from the response
+                content = response_data['content']  # Extract the 'content' field from the response
 
-            #     # print("Content:", content)
+                # print("Content:", content)
 
-            # else:
+            else:
 
-            #     print("Request failed with status code:", response.status_code)
+                print("Request failed with status code:", response.status_code)
 
-            # if not content:
+            if not content:
 
-            #     print('File already processed or request failed')
+                print('File already processed or request failed')
 
-            #     continue
+                continue
 
-            # field_id=content    
+            field_id=content    
 
             cunk_size = 10000
 
@@ -1085,21 +1085,21 @@ for file_path in files_location:
                 
                 chunk_size = 500
 
-                # for xy in range(0, (len(final_df) // chunk_size) + 1):  # +1 to include the remaining data
+                for xy in range(0, (len(final_df) // chunk_size) + 1):  # +1 to include the remaining data
 
-                #     start_index = xy * chunk_size
+                    start_index = xy * chunk_size
 
-                #     end_index = min((xy + 1) * chunk_size, len(final_df))
+                    end_index = min((xy + 1) * chunk_size, len(final_df))
 
-                #     hash_codes = final_df['HASH_1'][start_index:end_index]
+                    hash_codes = final_df['HASH_1'][start_index:end_index]
                 
-                #     body = {"hashCodes":list(hash_codes)}
+                    body = {"hashCodes":list(hash_codes)}
                 
-                #     response = requests.post(url = CDMS_properties['main_app']+'getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
+                    response = requests.post(url = CDMS_properties['main_app']+'getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
                 
-                #     duplicate_hashcodes = response.json()     
+                    duplicate_hashcodes = response.json()     
                 
-                #     duplicate_hash_list.extend(duplicate_hashcodes)
+                    duplicate_hash_list.extend(duplicate_hashcodes)
                 
                 invalid_records = final_df[final_df['valid']=='invalid']
                 
@@ -1224,59 +1224,59 @@ for file_path in files_location:
 
             duplicate_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//CDMS_duplicate_"+filename,index  = False)
 
-            # dedup_body = {
+            dedup_body = {
 
-            #     "fileId":field_id,
+                "fileId":field_id,
                         
-            #     "outputlocation":i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//",
+                "outputlocation":i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//",
 
-            #     "outputCount":len(final_df),
+                "outputCount":len(final_df),
             
-            #     "processName": process_name,
+                "processName": process_name,
 
-            #     "status":'Processed',
-            # }
+                "status":'Processed',
+            }
                 
-            # body = {
+            body = {
             
-            #     "fileName":"CDMS_valid_"+filename,
+                "fileName":"CDMS_valid_"+filename,
             
-            #     "filePath":i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//",
+                "filePath":i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//",
             
-            #     "subListID":76,
+                "subListID":76,
             
-            #     "userID":149,
+                "userID":149,
             
-            #     "businessHierarchyId":23,
+                "businessHierarchyId":23,
 
-            #     "batchNo":"b1",
+                "batchNo":"b1",
 
-            #     "dedupStatus":dedup_body
+                "dedupStatus":dedup_body
             
-            # }
+            }
             
             
-            # response = requests.post(url = CDMS_properties['main_app']+'fileUploadExternalApi',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body)
+            response = requests.post(url = CDMS_properties['main_app']+'fileUploadExternalApi',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body)
 
-            # upload_id=0         
+            upload_id=0         
 
-            # if response.status_code == 200:
+            if response.status_code == 200:
                 
-            #     response_data = response.json()
+                response_data = response.json()
 
-            #     content = response_data['content']  # Extract the 'content' field from the response
+                content = response_data['content']  # Extract the 'content' field from the response
                 
-            #     if content and 'uploadId' in content:
+                if content and 'uploadId' in content:
 
-            #         upload_id = content['uploadId']
+                    upload_id = content['uploadId']
                     
-            #     else:
+                else:
 
-            #         print("Upload ID not found in the response content.")
+                    print("Upload ID not found in the response content.")
 
-            # else:
+            else:
 
-            #     print("Request failed with status code:", response.status_code)
+                print("Request failed with status code:", response.status_code)
            
             print("Message sent successfully")
                                         
