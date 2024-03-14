@@ -24,6 +24,8 @@ import difflib
 
 # from kafka import KafkaProducer
 
+import subprocess
+
 import sys
 
 sys.path.append(r'C:\Users\CBT\AppData\Local\Programs\Python\Python311\Lib\site-packages')
@@ -551,6 +553,12 @@ def list_all_files_in_drive(drive):
 
     return all_files
 
+def remove_carriage_returns(filename):
+
+    command = ["sed", "-i", ":a;N;$!ba;s/\\r\\n//g", filename]
+
+    subprocess.run(command, check=True)
+
 config_parser = configparser.ConfigParser()
 
 config_parser.read_string('[default]\n' + open('config.properties').read())
@@ -617,6 +625,12 @@ for file_path in files_location:
 
             df_ = pd.read_csv(i+"//"+filename,encoding='utf-16')
 
+            df_.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//decoded_valid_"+filename,index=False)
+
+            remove_carriage_returns(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//decoded_valid_"+filename)
+
+            df_ = pd.read_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//decoded_valid_"+filename)
+            
             total_rows = len(df_)
 
             print('Input file Length '+'(' +filename +') '+ str(total_rows))
@@ -680,7 +694,7 @@ for file_path in files_location:
 
                 os.remove(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers"+filename)
 
-            for j, chunk_df in enumerate(pd.read_csv(i+"//"+filename, chunksize=cunk_size, low_memory=False,encoding='utf-16')):
+            for j, chunk_df in enumerate(pd.read_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//decoded_valid_"+filename, chunksize=cunk_size, low_memory=False)):
 
                 # continue
 
