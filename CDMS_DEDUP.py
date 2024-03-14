@@ -678,7 +678,7 @@ for file_path in files_location:
 
             field_id=content    
 
-            cunk_size = 10000
+            cunk_size = 50000
 
             if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//temp_valid_"+filename):
 
@@ -1092,26 +1092,26 @@ for file_path in files_location:
                 
                 # hashcode chcek API
 
-                duplicate_hash_list = []
+                # duplicate_hash_list = []
                 
                 
-                chunk_size = 500
+                # chunk_size = 500
 
-                for xy in range(0, (len(final_df) // chunk_size) + 1):  # +1 to include the remaining data
+                # for xy in range(0, (len(final_df) // chunk_size) + 1):  # +1 to include the remaining data
 
-                    start_index = xy * chunk_size
+                #     start_index = xy * chunk_size
 
-                    end_index = min((xy + 1) * chunk_size, len(final_df))
+                #     end_index = min((xy + 1) * chunk_size, len(final_df))
 
-                    hash_codes = final_df['HASH_1'][start_index:end_index]
+                #     hash_codes = final_df['HASH_1'][start_index:end_index]
                 
-                    body = {"hashCodes":list(hash_codes)}
+                #     body = {"hashCodes":list(hash_codes)}
                 
-                    response = requests.post(url = CDMS_properties['main_app']+'getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
+                #     response = requests.post(url = CDMS_properties['main_app']+'getCustomerDataby3Hashcode',headers = {'X-AUTH-TOKEN':CDMS_properties['x-auth-token'],'Content-Type':'application/json'},json = body,params = {'BusinessId':'9','isCustomer':True})
                 
-                    duplicate_hashcodes = response.json()     
+                #     duplicate_hashcodes = response.json()     
                 
-                    duplicate_hash_list.extend(duplicate_hashcodes)
+                #     duplicate_hash_list.extend(duplicate_hashcodes)
                 
                 invalid_records = final_df[final_df['valid']=='invalid']
                 
@@ -1188,7 +1188,7 @@ for file_path in files_location:
 
                 final_df['IN_SYSTEM'] = ''
 
-                final_df.loc[final_df['HASH_1'].isin(duplicate_hash_list), 'IN_SYSTEM'] = 'existing in system'
+                # final_df.loc[final_df['HASH_1'].isin(duplicate_hash_list), 'IN_SYSTEM'] = 'existing in system'
                 
                 # duplicate_hash = final_df[final_df['HASH_1'].isin(duplicate_hash_list)]
 
