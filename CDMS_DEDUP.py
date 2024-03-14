@@ -616,8 +616,9 @@ files_location = sorted(files_location, key=lambda x: extract_year_month(os.path
 # files_location=['/STFS0029M/CDMS/AUG/2023-08-01']
 print(files_location)
 for file_path in files_location:
+    
     print(file_path)
-    continue
+
     try:
         
         i, filename = os.path.split(file_path)
