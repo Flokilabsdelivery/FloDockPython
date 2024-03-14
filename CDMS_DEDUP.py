@@ -551,6 +551,13 @@ def list_all_files_in_drive(drive):
             all_files.append(file_path)
 
     return all_files
+def extract_year_month(filename):
+
+    year = int(filename[-8:-4])
+
+    month = filename[-7:-4]
+
+    return year, month
 
 
 config_parser = configparser.ConfigParser()
@@ -602,13 +609,15 @@ files_location = list(set(files_location))
 count = 0
 
 total_dataframe = pd.DataFrame()
-
+# Sort the file paths based on year and month extracted from the filename
+files_location = sorted(files_location, key=lambda x: extract_year_month(os.path.split(x)[1]))
 # print(files_location)
-
+# print(files_location)
 # files_location=['/STFS0029M/CDMS/AUG/2023-08-01']
-
+print(files_location)
 for file_path in files_location:
-
+    print(file_path)
+    continue
     try:
         
         i, filename = os.path.split(file_path)
