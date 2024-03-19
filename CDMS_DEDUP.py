@@ -627,7 +627,7 @@ for file_path in files_location:
 
             url = CDMS_properties['main_app'] + 'crm/getDudupStatus'
 
-            df_ = pd.read_csv(i+"//"+filename,encoding='utf-16')
+            df_ = pd.read_csv(i+"//"+filename)
 
             total_rows = len(df_)
 
@@ -692,7 +692,7 @@ for file_path in files_location:
 
                 os.remove(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers"+filename)
 
-            for j, chunk_df in enumerate(pd.read_csv(i+"//"+filename, chunksize=cunk_size, low_memory=False,encoding='utf-16')):
+            for j, chunk_df in enumerate(pd.read_csv(i+"//"+filename, chunksize=cunk_size, low_memory=False)):
 
                 # continue
 
@@ -732,7 +732,7 @@ for file_path in files_location:
                 
                 df = CDMS_output.copy()
                                 
-                errored_headers = ['EMAIL','LANDLINE_NO','EXPIRYDATE','LOAD_DT','ISSUEDATE','DATEOFBIRTH']
+                errored_headers = ['EMAIL','LANDLINE_NO','EXPIRYDATE','CREATEDDATE','ISSUEDATE','DATEOFBIRTH']
                 
                 #rule1 upper case and accent change
                 
@@ -795,10 +795,10 @@ for file_path in files_location:
 
                 #date format
                 
-                df.rename(columns = {'EXPIRYDATE_x':'EXPIRYDATE','LOAD_DT_x':'LOAD_DT'},inplace = True)
+                # df.rename(columns = {'EXPIRYDATE_x':'EXPIRYDATE','LOAD_DT_x':'CREATEDDATE'},inplace = True)
                         
                         
-                for column in ['EXPIRYDATE','LOAD_DT','ISSUEDATE','DATEOFBIRTH']:
+                for column in ['EXPIRYDATE','CREATEDDATE','ISSUEDATE','DATEOFBIRTH']:
                     
                     df[column+'_error'] = df[column].copy()
                 
@@ -821,11 +821,11 @@ for file_path in files_location:
                 
                 df['DATEOFBIRTH'].fillna('',inplace = True)
 
-                df['LOAD_DT'] = pd.to_datetime(df['LOAD_DT'],format = '%Y-%m-%dT%H:%M:%S.%fZ',errors = 'coerce')
+                df['CREATEDDATE'] = pd.to_datetime(df['CREATEDDATE'],format = '%Y-%m-%dT%H:%M:%S.%fZ',errors = 'coerce')
 
-                df['LOAD_DT'] = df['LOAD_DT'].dt.strftime('%m/%d/%Y')
+                df['CREATEDDATE'] = df['CREATEDDATE'].dt.strftime('%m/%d/%Y')
                 
-                df['LOAD_DT'].fillna('',inplace = True)
+                df['CREATEDDATE'].fillna('',inplace = True)
 
                 gender_map = {'M': 'Male', 'F': 'Female'}
 
@@ -845,7 +845,7 @@ for file_path in files_location:
 
                 df.loc[df['DATEOFBIRTH']=='','floki_changes']+='DOB not in format or empty;'
 
-                df.loc[df['LOAD_DT']=='','floki_changes']+='LOAD_DT not in format or empty;'
+                df.loc[df['CREATEDDATE']=='','floki_changes']+='CREATEDDATE not in format or empty;'
 
                 #adding suffix
                                 
@@ -1147,7 +1147,7 @@ for file_path in files_location:
                 
                 final_df.replace('none','')
                 
-                final_df.rename(columns = {'EXPIRYDATE_x':'EXPIRYDATE','LOAD_DT_x':'LOAD_DT'},inplace = True)
+                # final_df.rename(columns = {'EXPIRYDATE_x':'EXPIRYDATE','LOAD_DT_x':'LOAD_DT'},inplace = True)
                 
                 final_df['PRIMARYIDTYPE'] = ''
                 
@@ -1168,9 +1168,9 @@ for file_path in files_location:
                 
                 final_df.fillna('',inplace = True)
                 
-                errored_df = final_df[(((final_df['EMAIL']=='') & (final_df['EMAIL_error']!='')) | ((final_df['LANDLINE_NO']=='') & (final_df['LANDLINE_NO_error']!='')) | ((final_df['EXPIRYDATE']=='') & (final_df['EXPIRYDATE_error']!='')) | ((final_df['LOAD_DT']=='') & (final_df['LOAD_DT_error']!='')) |((final_df['DATEOFBIRTH']=='') & (final_df['DATEOFBIRTH_error']!='')))]
+                # errored_df = final_df[(((final_df['EMAIL']=='') & (final_df['EMAIL_error']!='')) | ((final_df['LANDLINE_NO']=='') & (final_df['LANDLINE_NO_error']!='')) | ((final_df['EXPIRYDATE']=='') & (final_df['EXPIRYDATE_error']!='')) | ((final_df['CREATEDDATE']=='') & (final_df['LOAD_DT_error']!='')) |((final_df['DATEOFBIRTH']=='') & (final_df['DATEOFBIRTH_error']!='')))]
                 
-                errored_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//errored_out.csv",index  = False)
+                # errored_df.to_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//errored_out.csv",index  = False)
                 
                 headers_final.append('CUSTOMERADDRESS')
                             
@@ -1222,10 +1222,18 @@ for file_path in files_location:
 
             df.loc[df['BRANCHCODE'] == '', 'BRANCHCODE'] = 'ZZZ'
 
+            # df['CUSTOMERADDRESS'] = df['CUSTOMERADDRESS'].str.replace('\r\n', '', regex=True)
+
+            # df['PPG_HOMEADD'] = df['PPG_HOMEADD'].str.replace('\r\n', '', regex=True)
+
+            # df['CUSTOMERADDRESS'] = df['CUSTOMERADDRESS'].str.replace(r'\\', '')
+
+            # df['PPG_HOMEADD'] = df['PPG_HOMEADD'].str.replace(r'\\', '')
+
             final_df = df[~(df.duplicated(['HASH_1']))]
 
             duplicate_df = df[(df.duplicated(['HASH_1']))]
-
+            
             # corporate_customers = final_df[final_df['CORPORATE'] == True]
                 
             # final_df = final_df[final_df['CORPORATE']==False]
