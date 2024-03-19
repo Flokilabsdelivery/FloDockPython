@@ -627,7 +627,7 @@ for file_path in files_location:
 
             url = CDMS_properties['main_app'] + 'crm/getDudupStatus'
 
-            df_ = pd.read_csv(i+"//"+filename)
+            df_ = pd.read_csv(i+"//"+filename,encoding='utf-16')
 
             total_rows = len(df_)
 
@@ -692,7 +692,7 @@ for file_path in files_location:
 
                 os.remove(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers"+filename)
 
-            for j, chunk_df in enumerate(pd.read_csv(i+"//"+filename, chunksize=cunk_size, low_memory=False)):
+            for j, chunk_df in enumerate(pd.read_csv(i+"//"+filename, chunksize=cunk_size, low_memory=False,encoding='utf-16')):
 
                 # continue
 
