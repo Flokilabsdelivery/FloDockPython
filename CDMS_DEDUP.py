@@ -559,6 +559,18 @@ def extract_year_month(filename):
 
     return year, month
 
+def extract_month(file_path):
+    filename = file_path.split('/')[-1]  # Get the filename part
+    match = re.search(r'([A-Z]+-[A-Z]+)\d+', filename)  # Search for the month pattern
+    if match:
+        month = match.group(1)
+        return {
+            'JAN-APR': 1,
+            'MAY-AUG': 2,
+            'SEP-DEC': 3
+        }.get(month, 0)
+    return 0
+
 
 config_parser = configparser.ConfigParser()
 
@@ -567,6 +579,7 @@ config_parser.read_string('[default]\n' + open('config.properties').read())
 CDMS_properties = {}
 
 for option in config_parser.options('default'):
+
     CDMS_properties[option] = config_parser.get('default', option)
 
 process_name=''
@@ -609,12 +622,13 @@ files_location = list(set(files_location))
 count = 0
 
 total_dataframe = pd.DataFrame()
-# Sort the file paths based on year and month extracted from the filename
-files_location = sorted(files_location, key=lambda x: extract_year_month(os.path.split(x)[1]))
-# print(files_location)
-# print(files_location)
-# files_location=['/STFS0029M/CDMS/AUG/2023-08-01']
+
 print(files_location)
+
+files_location = sorted(files_location, key=extract_month)
+
+# files_location = sorted(files_location, key=lambda x: x[-10:-4])
+
 for file_path in files_location:
     
     print(file_path)
