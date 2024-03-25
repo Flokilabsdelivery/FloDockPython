@@ -623,11 +623,9 @@ count = 0
 
 total_dataframe = pd.DataFrame()
 
-print(files_location)
+# files_location = sorted(files_location, key=extract_month)
 
-files_location = sorted(files_location, key=extract_month)
-
-# files_location = sorted(files_location, key=lambda x: x[-10:-4])
+files_location = sorted(files_location, key=lambda x: x[-10:-4])
 
 for file_path in files_location:
     
@@ -723,6 +721,14 @@ for file_path in files_location:
                 headers = dict(list(zip(headers['key'],headers['value'])))
                 
                 CDMS_merged.rename(columns = headers,inplace = True)
+
+                #Carriage character removal
+
+                CDMS_merged[config['ADDRESS1']] = CDMS_merged[config['ADDRESS1']].str.replace('\r\n', '', regex=True)
+
+                CDMS_merged[config['ADDRESS1']] = CDMS_merged[config['ADDRESS1']].str.replace('\n', '', regex=True)
+
+                CDMS_merged[config['ADDRESS1']] = CDMS_merged[config['ADDRESS1']].str.replace(r'\\', '')
                 
                 CDMS_merged[config['CustomerAddress']] = CDMS_merged[config['ADDRESS1']] + CDMS_merged[config['ADDRESS2']] + CDMS_merged[config['ADDRESS3']] + CDMS_merged[config['ADDRESS4']]
         
