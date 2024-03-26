@@ -571,6 +571,15 @@ def extract_month(file_path):
         }.get(month, 0)
     return 0
 
+def check_utf16_bom(file_path):
+    with open(file_path, 'rb') as f:
+        bom = f.read(2)  # Read the first two bytes
+        if bom == b'\xfe\xff':
+            return 'utf-16-be'  # Big endian
+        elif bom == b'\xff\xfe':
+            return 'utf-16-le'  # Little endian
+    return None
+
 
 config_parser = configparser.ConfigParser()
 
@@ -632,6 +641,14 @@ for file_path in files_location:
     print(file_path)
 
     try:
+
+        encoding = check_utf16_bom(file_path)
+
+        if encoding:
+            print(f"File is in {encoding}.")
+        else:
+            print("File encoding is not UTF-16 or BOM is missing.")
+            continue
         
         i, filename = os.path.split(file_path)
 
@@ -684,7 +701,9 @@ for file_path in files_location:
 
             if not content:
 
-                print('File already processed or request failed')
+                if response.status_code == 200:
+
+                    print(filename+' already processed')
 
                 continue
 
