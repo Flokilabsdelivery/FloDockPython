@@ -632,25 +632,26 @@ count = 0
 
 total_dataframe = pd.DataFrame()
 
-# files_location = sorted(files_location, key=extract_month)
+files_location = sorted(files_location, key=extract_month)
 
-files_location = sorted(files_location, key=lambda x: x[-10:-4])
+# files_location = sorted(files_location, key=lambda x: x[-10:-4])
 
 for file_path in files_location:
     
-    print(file_path)
+    # print(file_path)
 
     try:
+
+        i, filename = os.path.split(file_path)
 
         encoding = check_utf16_bom(file_path)
 
         if encoding:
-            print(f"File is in {encoding}.")
+            print(f"{filename} is in {encoding}.")
         else:
-            print("File encoding is not UTF-16 or BOM is missing.")
+            print(filename+" encoding is not UTF-16 or BOM is missing.")
             continue
         
-        i, filename = os.path.split(file_path)
 
         if (filename) in os.listdir(i) and filename.endswith('.csv'):
 
@@ -855,6 +856,10 @@ for file_path in files_location:
                 df['EXPIRYDATE'].fillna('',inplace = True)
 
                 df['DATEOFBIRTH'] = pd.to_datetime(df['DATEOFBIRTH'],format = '%Y-%m-%dT%H:%M:%S.%fZ',errors = 'coerce')
+
+                # df['DATEOFBIRTH'] = df['DATEOFBIRTH'].dt.tz_localize('UTC')
+
+                # df['DATEOFBIRTH'] = df['DATEOFBIRTH'].dt.tz_convert('Asia/Manila')
 
                 df['DATEOFBIRTH'] = df['DATEOFBIRTH'].dt.strftime('%m/%d/%Y')
                 
@@ -1214,6 +1219,8 @@ for file_path in files_location:
                 headers_final.append('CUSTOMERADDRESS')
                             
                 final_df = final_df[headers_final]
+
+                final_df['CUSTOMER_PROFILE'] = 'Basic'
                 
                 final_df['Remarks_y'] = ''
                 
