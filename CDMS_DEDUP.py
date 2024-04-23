@@ -632,9 +632,9 @@ count = 0
 
 total_dataframe = pd.DataFrame()
 
-files_location = sorted(files_location, key=extract_month)
+# files_location = sorted(files_location, key=extract_month)
 
-# files_location = sorted(files_location, key=lambda x: x[-10:-4])
+files_location = sorted(files_location, key=lambda x: x[-10:-4])
 
 for file_path in files_location:
     
