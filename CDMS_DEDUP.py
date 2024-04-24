@@ -29,7 +29,7 @@ import sys
 
 sys.path.append(r'C:\Users\CBT\AppData\Local\Programs\Python\Python311\Lib\site-packages')
 
-config = pd.read_excel('config.xlsx',engine = 'openpyxl')
+config = pd.read_excel('/mnt/Dedup-CDMS/config.xlsx',engine = 'openpyxl')
 
 config = dict(list(zip(config['key'],config['value'])))
 
@@ -583,7 +583,7 @@ def check_utf16_bom(file_path):
 
 config_parser = configparser.ConfigParser()
 
-config_parser.read_string('[default]\n' + open('config.properties').read())
+config_parser.read_string('[default]\n' + open('/mnt/Dedup-CDMS/config.properties').read())
 
 CDMS_properties = {}
 
@@ -740,7 +740,7 @@ for file_path in files_location:
 
                 CDMS_merged = df_[start_index:end_index]
             
-                headers = pd.read_csv('CDMS_header_match.csv')
+                headers = pd.read_csv('/mnt/Dedup-CDMS/CDMS_header_match.csv')
                 
                 headers = dict(list(zip(headers['key'],headers['value'])))
                 
@@ -956,7 +956,7 @@ for file_path in files_location:
                 
                 #using branch codes
                 
-                branch_codes = pd.read_excel('branch_code.xlsx',engine = 'openpyxl')
+                branch_codes = pd.read_excel('/mnt/Dedup-CDMS/branch_code.xlsx',engine = 'openpyxl')
                 
                 branch_codes1 = dict(list(zip(branch_codes['PEPP Code'],branch_codes['Partner Name'])))
                 
