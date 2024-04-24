@@ -647,9 +647,13 @@ for file_path in files_location:
         encoding = check_utf16_bom(file_path)
 
         if encoding:
+
             print(f"{filename} is in {encoding}.")
+
         else:
+
             print(filename+" encoding is not UTF-16 or BOM is missing.")
+
             continue
         
 
@@ -1335,26 +1339,117 @@ for file_path in files_location:
                 if content and 'uploadId' in content:
 
                     upload_id = content['uploadId']
+
+                    print(filename + " File Deduped")
                     
                 else:
 
                     print("Upload ID not found in the response content.")
 
+                    continue
+
             else:
 
                 print("Request failed with status code:", response.status_code)
-           
-            print("Message sent successfully")
+
+                continue
+
+            print(filename + " Data summary report Started")
+
+            report_contents = []
                                         
-            # with open('response.txt','r') as w:
-                
-            #     text = w.read()
+            if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_valid_"+filename):
 
-            # with open('response.txt','w') as w:
+                total_df=pd.read_csv(file_path,encoding='utf-16')
+
+                total_len = len(total_df)
+
+                record = "input records: " + str(total_len)
+
+                report_contents.append(record)
+
+                report_path=i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"/report"
+
+                if not os.path.exists(report_path):
+
+                    os.makedirs(report_path)
+
+                if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//invalid_"+filename):
+
+                    df=pd.read_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//invalid//invalid_"+filename)
+
+                    record = "Invalid records: " + str(len(df))
+
+                    report_contents.append(record)
+
+                    df_summary = df.groupby('reason').size().reset_index(name='Counts')
+
+                    df_summary.to_csv(report_path+'/data_summery_'+ filename,index=False)
+
+                    diff_len =total_len - len(df)
+
+                    record = "valid records: " + str(diff_len)
+
+                    report_contents.append(record)    
+
+                if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers"+filename):
+
+                    df=pd.read_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//corporate_customers"+filename)   
+
+                    record = "Corprate records: " + str(len(df))
+
+                    report_contents.append(record)         
+
+                if os.path.exists(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//temp_valid_"+filename):
+
+                    df=pd.read_csv(i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//temp_valid_"+filename)
+
+                    df = df[~(df.duplicated(['HASH_2']))]
+
+                    record = "Rule 8 (Fname, Lname, DOB, Address): " + str(len(df))
+
+                    report_contents.append(record)
+
+                    df = df[~(df.duplicated(['HASH_1']))]
+
+                    record = "Subrule 1 (Fname, Lname, DOB): " + str(len(df))
+
+                    report_contents.append(record)
+
+                    df = df[((df["CONTACT_DETAILS"].astype(str).str.startswith('+63')) & (df["CONTACT_DETAILS"].astype(str).str.len() == 13)) ]
+
+                    record = "Filter Valid Phone Number: " + str(len(df))
+
+                    report_contents.append(record)
+
+                    df = df[~(df.duplicated(['CONTACT_DETAILS']))]
+
+                    record = "Use Phone Numbers as Subrule: " + str(len(df))
+
+                    report_contents.append(record)
+
                 
-            #     w.write(text+str(count)+"."+i+"\n")
+                report_path_1=i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"/report/report_"+filename
+
+                if report_path_1.endswith('.csv'):
+                    
+                    new_report_path = os.path.splitext(report_path_1)[0] + '.txt'
+
+                    if os.path.exists(new_report_path):
+
+                        os.remove(new_report_path)
+
+                    with open(new_report_path, "w") as f:
+
+                        for content in report_contents:
+
+                            f.write(content + "\n")
+
+                print('Data summary report '+ filename )
                                     
+            else:
 
+                print("Dedup file not found in "+ i.replace(CDMS_properties['replace_string'],CDMS_properties['replace_with'])+"//valid//CDMS_valid_"+filename)
                 
     except Exception as e:
     
